@@ -13,7 +13,6 @@
         .nav-group { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 300px; }
         .nav-panel select, .nav-panel input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; flex: 1; outline: none; }
         .nav-panel select { background: #f8fafc; font-weight: 600; cursor: pointer; }
-        .nav-panel select:focus, .nav-panel input:focus { border-color: var(--accent); }
 
         .layout { display: grid; grid-template-columns: 1fr 380px; gap: 30px; align-items: start; }
         
@@ -29,7 +28,6 @@
 
         .score-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
         .btn-score { width: 42px; height: 42px; border-radius: 8px; border: 1px solid var(--border); background: white; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; color: #475569; }
-        .btn-score:hover { border-color: var(--accent); color: var(--accent); }
         .btn-score.active.excellent { background: var(--success); color: white; border-color: var(--success); }
         .btn-score.active.verygood { background: var(--accent); color: white; border-color: var(--accent); }
         .btn-score.active.good { background: var(--warning); color: white; border-color: var(--warning); }
@@ -39,39 +37,41 @@
         .rubric-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.85rem; }
         .rubric-table th, .rubric-table td { border: 1px solid var(--border); padding: 10px; text-align: left; vertical-align: top; width: 25%; }
         .rubric-table th { background: #f8fafc; color: #475569; }
-        .rubric-table td b { display: block; margin-bottom: 4px; font-size: 0.9rem; }
         
-        /* Guide Box Updated for Full Text */
         .guide-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 15px; margin-bottom: 15px; font-size: 0.9rem; color: #0369a1; }
         .guide-box ul { margin: 5px 0 0 0; padding-left: 20px; }
-        .guide-box li { margin-bottom: 6px; }
         
-        .comment-area { width: 100%; box-sizing: border-box; padding: 15px; border: 1px solid var(--border); border-radius: 8px; min-height: 120px; font-family: inherit; font-size: 0.95rem; line-height: 1.5; resize: vertical; }
-        .comment-area:focus { outline: none; border-color: var(--accent); }
-
-        /* Vocabulary Suggestions UI */
         .vocab-container { background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin-top: 15px; display: none; }
-        .vocab-title { font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;}
+        .vocab-title { font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
         .vocab-list { display: flex; flex-wrap: wrap; gap: 6px; }
-        .vocab-tag { font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; border: 1px solid transparent; cursor: pointer; user-select: text;}
+        .vocab-tag { font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; border: 1px solid transparent; user-select: text; cursor: pointer; }
         .vocab-tag.pos { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
         .vocab-tag.neg { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
 
-        /* Checklist specific */
+        .comment-area { width: 100%; box-sizing: border-box; padding: 15px; border: 1px solid var(--border); border-radius: 8px; min-height: 120px; font-family: inherit; font-size: 0.95rem; line-height: 1.5; resize: vertical; margin-top: 15px; }
+        
+        /* Görüntü Yükleme Alanı */
+        .evidence-box { background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 8px; padding: 15px; margin-top: 15px; }
+        .evidence-box label { font-size: 0.85rem; font-weight: 600; color: var(--primary); display: block; margin-bottom: 8px; }
+        .preview-container { margin-top: 10px; display: none; align-items: flex-end; gap: 10px; }
+        .preview-container img { width: 100px; height: 75px; object-fit: cover; border-radius: 6px; border: 2px solid var(--border); cursor: zoom-in; }
+        .btn-remove-img { background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
+
+        /* Fullscreen Image Modal */
+        #image-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; padding: 40px; }
+        #image-modal img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .modal-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 2rem; cursor: pointer; font-weight: bold; background: none; border: none; }
+
         .hybrid-group { background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border); flex: 1; min-width: 300px; }
         .hybrid-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.95rem; font-weight: 500; }
-        .hybrid-item select { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); font-weight: bold; cursor: pointer; outline: none; }
+        .hybrid-item select { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); font-weight: bold; cursor: pointer; }
 
         .sidebar { position: sticky; top: 20px; }
-        .score-panel { background: var(--primary); color: white; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .score-panel { background: var(--primary); color: white; padding: 30px; border-radius: 16px; text-align: center; }
         .grand-total { font-size: 5rem; font-weight: 900; margin: 10px 0; line-height: 1; }
         .status-badge { padding: 8px 24px; border-radius: 20px; font-weight: bold; font-size: 1rem; display: inline-block; margin-bottom: 20px; }
-        
-        .summary-list { text-align: left; margin-top: 20px; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
         .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed rgba(255,255,255,0.1); }
-        
         .btn-save { width: 100%; background: var(--success); color: white; border: none; padding: 18px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 1.1rem; margin-top: 20px; transition: 0.2s; }
-        .btn-save:hover { background: #16a34a; transform: translateY(-2px); }
 
         #loader { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); color: white; align-items: center; justify-content: center; z-index: 1000; font-size: 1.5rem; font-weight: bold; flex-direction: column; gap: 15px; }
         .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
@@ -83,6 +83,11 @@
 <div id="loader">
     <div class="spinner"></div>
     <div id="loader-text">Synchronizing with Database...</div>
+</div>
+
+<div id="image-modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <img id="modal-img" src="">
 </div>
 
 <div class="container">
@@ -103,15 +108,12 @@
 
     <div class="layout">
         <main id="main-content"></main>
-        
         <aside class="sidebar">
             <div class="score-panel">
                 <h3 style="margin-top:0; color:#cbd5e1; font-size:1rem; text-transform:uppercase; letter-spacing:1px;">Total Score</h3>
                 <div class="grand-total" id="grand-total">0</div>
                 <div id="status-badge" class="status-badge" style="background: var(--danger);">FAILED</div>
-                
-                <div id="summary-list" class="summary-list"></div>
-                
+                <div id="summary-list" style="text-align: left; margin-top: 20px; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;"></div>
                 <button class="btn-save" onclick="saveToSheets()">SAVE & COMMIT TO DATABASE</button>
             </div>
         </aside>
@@ -122,163 +124,46 @@
 // ==========================================
 // 1. DATABASE URL
 // ==========================================
-const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbxT-9Vn3ZosqlEkf5l8K1ZY3Ez9VJ9HIs0qS1KHWqQWguqM6zMxWH50EnHQg4piCmtOgg/exec"; 
+const GOOGLE_APP_URL = "YOUR_WEB_APP_URL_HERE"; 
 
-// ==========================================
-// 2. VOCABULARY DATA
-// ==========================================
 const positiveVocab = ["extremely relevant", "credible", "very clear", "precisely specified", "realistic", "very innovative", "extremely well suited", "timely", "convincing", "comprehensive", "high quality", "justified", "very well identified", "strong", "highly effective", "thoughtful", "very promising", "evidence", "well-formulated", "carefully prepared", "very professionally prepared", "fully in line", "very profound", "sound", "very convincingly integrated", "clearly articulated", "coherent", "well balanced", "very plausible", "ambitious", "clear advances", "well above average"];
 const negativeVocab = ["insufficient", "minimal", "fails to describe", "unacceptable", "inadequate", "very generic", "not evident", "unfocused", "very weak", "bad", "does not meet the requirements", "inappropriate", "limited", "unclear", "not sound enough", "not specified", "no significant impact", "unjustified", "overestimated"];
 
-// ==========================================
-// 3. FULL RUBRIC DATA WITH GUIDELINES
-// ==========================================
 const rubricData = [
     {
         title: "1. Relevance", max: 30, threshold: 15,
         items: [
-            { id: "1.1", name: "Link to Objectives and Thematic Areas", max: 7, 
-              guide: [
-                  "The application is relevant to the chosen general and specific objectives of the call.",
-                  "It is consistent with the requirements of the call and is clearly explained.",
-                  "The application addresses one of the thematic areas identified for this call."
-              ], 
-              levels: [{l:"Exc", r:[7], d:"Exceptional alignment with objectives."}, {l:"VG", r:[5,6], d:"Strong alignment with minor shortcomings."}, {l:"G", r:[3,4], d:"Adequate alignment, some aspects unjustified."}, {l:"P", r:[0,1,2], d:"Weak or partial alignment."}] 
-            },
-            { id: "1.2", name: "Needs Analysis", max: 7, 
-              guide: [
-                  "The application is based on an adequate analysis of challenges and needs.",
-                  "The different needs of the different partners have been identified and are well taken into account."
-              ], 
-              levels: [{l:"Exc", r:[7], d:"Comprehensive and evidence-based."}, {l:"VG", r:[5,6], d:"Clearly identified and connected."}, {l:"G", r:[3,4], d:"Adequate but lacks depth/evidence."}, {l:"P", r:[0,1,2], d:"Poorly identified."}] 
-            },
-            { id: "1.3", name: "Activities", max: 10, 
-              guide: [
-                  "The virtual exchanges are clearly defined and promote intercultural dialogue and soft skills development.",
-                  "They principally contribute to the educational, personal, or professional development of participants from third countries not associated with the Programme.",
-                  "The proposed activities have the potential to develop mutual trust and enhance cross-border cooperation.",
-                  "Evidence of the effectiveness of the proposed virtual exchange approach is provided."
-              ], 
-              levels: [{l:"Exc", r:[9,10], d:"Highly coherent and innovative."}, {l:"VG", r:[7,8], d:"Well designed, limited weaknesses."}, {l:"G", r:[5,6], d:"Generally appropriate, uneven detail."}, {l:"P", r:[0,1,2,3,4], d:"Unclear, weakly justified."}] 
-            },
-            { id: "1.4", name: "EU Values", max: 6, 
-              guide: [
-                  "The application is relevant to the respect and promotion of shared EU values, such as: Respect for human dignity, Freedom, Democracy, Equality, The rule of law, Respect for human rights. The application also supports fighting all forms of discrimination."
-              ], 
-              levels: [{l:"Exc", r:[6], d:"Explicitly and consistently embedded."}, {l:"VG", r:[4,5], d:"Clearly addressed, minor limitations."}, {l:"G", r:[2,3], d:"Mentioned but insufficiently operationalised."}, {l:"P", r:[0,1], d:"Limited or superficial."}] 
-            }
+            { id: "1.1", name: "Link to Objectives and Thematic Areas", max: 7, guide: ["The application is relevant to the chosen general and specific objectives of the call.", "It is consistent with the requirements of the call and is clearly explained.", "The application addresses one of the thematic areas identified for this call."], levels: [{l:"Exc", r:[7], d:"Exceptional alignment with objectives."}, {l:"VG", r:[5,6], d:"Strong alignment with minor shortcomings."}, {l:"G", r:[3,4], d:"Adequate alignment, some aspects unjustified."}, {l:"P", r:[0,1,2], d:"Weak or partial alignment."}] },
+            { id: "1.2", name: "Needs Analysis", max: 7, guide: ["The application is based on an adequate analysis of challenges and needs.", "The different needs of the different partners have been identified and are well taken into account."], levels: [{l:"Exc", r:[7], d:"Comprehensive and evidence-based."}, {l:"VG", r:[5,6], d:"Clearly identified and connected."}, {l:"G", r:[3,4], d:"Adequate but lacks depth/evidence."}, {l:"P", r:[0,1,2], d:"Poorly identified."}] },
+            { id: "1.3", name: "Activities", max: 10, guide: ["The virtual exchanges are clearly defined and promote intercultural dialogue and soft skills development.", "They principally contribute to the educational, personal, or professional development of participants from third countries not associated with the Programme.", "The proposed activities have the potential to develop mutual trust and enhance cross-border cooperation.", "Evidence of the effectiveness of the proposed virtual exchange approach is provided."], levels: [{l:"Exc", r:[9,10], d:"Highly coherent and innovative."}, {l:"VG", r:[7,8], d:"Well designed, limited weaknesses."}, {l:"G", r:[5,6], d:"Generally appropriate, uneven detail."}, {l:"P", r:[0,1,2,3,4], d:"Unclear, weakly justified."}] },
+            { id: "1.4", name: "EU Values", max: 6, guide: ["The application is relevant to the respect and promotion of shared EU values, such as: Respect for human dignity, Freedom, Democracy, Equality, The rule of law, Respect for human rights. The application also supports fighting all forms of discrimination."], levels: [{l:"Exc", r:[6], d:"Explicitly and consistently embedded."}, {l:"VG", r:[4,5], d:"Clearly addressed, minor limitations."}, {l:"G", r:[2,3], d:"Mentioned but insufficiently operationalised."}, {l:"P", r:[0,1], d:"Limited or superficial."}] }
         ]
     },
     {
         title: "2. Quality of Project Design", max: 30, threshold: 15,
         items: [
-            { id: "2.1", name: "Coherence", max: 6, 
-              guide: [
-                  "The overall project design ensures consistency between project objectives, methodology, activities, and the proposed budget.",
-                  "The application presents a coherent, realistic, and comprehensive set of appropriate activities to: Meet the identified needs and lead to the expected results"
-              ], 
-              levels: [{l:"Exc", r:[6], d:"Fully coherent and realistic."}, {l:"VG", r:[4,5], d:"Strong coherence."}, {l:"G", r:[2,3], d:"General coherence exists."}, {l:"F/P", r:[0,1], d:"Significant inconsistencies."}] 
-            },
-            { id: "2.2", name: "Methodology", max: 7, 
-              guide: [
-                  "The proposal demonstrates the quality and feasibility of the proposed methodology.",
-                  "The methodology is appropriate for addressing the identified needs, including those of the different partners. A clear concept has been developed for managing these different needs.",
-                  "The chosen pedagogical approach(es) are aligned with the identified needs."
-              ], 
-              levels: [{l:"Exc", r:[7], d:"Highly feasible and appropriate."}, {l:"VG", r:[5,6], d:"Strong and appropriate."}, {l:"G", r:[3,4], d:"Generally adequate."}, {l:"F/P", r:[0,1,2], d:"Weak, unclear, or unrealistic."}] 
-            },
-            { id: "2.3", name: "Learning Outcomes", max: 5, 
-              guide: [
-                  "Learning outcomes are evaluated and recognised (e.g. Youthpass).",
-                  "Learning outcomes are clearly defined before each virtual exchange activity.",
-                  "Outcomes are measured after each activity.",
-                  "Progress is recorded and achievements are recognised."
-              ], 
-              levels: [{l:"Exc", r:[5], d:"Clearly defined, monitored, recognised."}, {l:"VG", r:[4], d:"Well addressed, minor assessment weakness."}, {l:"G", r:[2,3], d:"Identified but insufficiently measured."}, {l:"F/P", r:[0,1], d:"Weakly defined."}] 
-            },
-            { id: "2.4", name: "Budget", max: 5, 
-              guide: [
-                  "The budget demonstrates cost effectiveness and value for money.",
-                  "There is coherence between: tasks, roles, and financial resources allocated to partners.",
-                  "The financial management arrangements are clear and appropriate."
-              ], 
-              levels: [{l:"Exc", r:[5], d:"Excellent value for money."}, {l:"VG", r:[4], d:"Realistic and generally coherent."}, {l:"G", r:[2,3], d:"Adequate but insufficiently justified."}, {l:"F/P", r:[0,1], d:"Unrealistic or poorly explained."}] 
-            },
-            { id: "2.5", name: "Evaluation", max: 7, 
-              guide: [
-                  "Specific measures for monitoring processes and deliverables (i.e. indicators of achievement and means of verification) ensure that the project implementation is of high quality.",
-                  "There is a clear quality assurance plan which also covers project management adequately.",
-                  "The monitoring strategy includes risk identification and a mitigating action plan."
-              ], 
-              levels: [{l:"Exc", r:[7], d:"Comprehensive and highly effective."}, {l:"VG", r:[5,6], d:"Strong with only minor gaps."}, {l:"G", r:[3,4], d:"Generally appropriate but limited."}, {l:"F/P", r:[0,1,2], d:"Weak or insufficiently developed."}] 
-            }
+            { id: "2.1", name: "Coherence", max: 6, guide: ["The overall project design ensures consistency between project objectives, methodology, activities, and the proposed budget.", "The application presents a coherent, realistic, and comprehensive set of appropriate activities to: Meet the identified needs and lead to the expected results"], levels: [{l:"Exc", r:[6], d:"Fully coherent and realistic."}, {l:"VG", r:[4,5], d:"Strong coherence."}, {l:"G", r:[2,3], d:"General coherence exists."}, {l:"F/P", r:[0,1], d:"Significant inconsistencies."}] },
+            { id: "2.2", name: "Methodology", max: 7, guide: ["The proposal demonstrates the quality and feasibility of the proposed methodology.", "The methodology is appropriate for addressing the identified needs, including those of the different partners. A clear concept has been developed for managing these different needs.", "The chosen pedagogical approach(es) are aligned with the identified needs."], levels: [{l:"Exc", r:[7], d:"Highly feasible and appropriate."}, {l:"VG", r:[5,6], d:"Strong and appropriate."}, {l:"G", r:[3,4], d:"Generally adequate."}, {l:"F/P", r:[0,1,2], d:"Weak, unclear, or unrealistic."}] },
+            { id: "2.3", name: "Learning Outcomes", max: 5, guide: ["Learning outcomes are evaluated and recognised (e.g. Youthpass).", "Learning outcomes are clearly defined before each virtual exchange activity.", "Outcomes are measured after each activity.", "Progress is recorded and achievements are recognised."], levels: [{l:"Exc", r:[5], d:"Clearly defined, monitored, recognised."}, {l:"VG", r:[4], d:"Well addressed, minor assessment weakness."}, {l:"G", r:[2,3], d:"Identified but insufficiently measured."}, {l:"F/P", r:[0,1], d:"Weakly defined."}] },
+            { id: "2.4", name: "Budget", max: 5, guide: ["The budget demonstrates cost effectiveness and value for money.", "There is coherence between: tasks, roles, and financial resources allocated to partners.", "The financial management arrangements are clear and appropriate."], levels: [{l:"Exc", r:[5], d:"Excellent value for money."}, {l:"VG", r:[4], d:"Realistic and generally coherent."}, {l:"G", r:[2,3], d:"Adequate but insufficiently justified."}, {l:"F/P", r:[0,1], d:"Unrealistic or poorly explained."}] },
+            { id: "2.5", name: "Evaluation", max: 7, guide: ["Specific measures for monitoring processes and deliverables (i.e. indicators of achievement and means of verification) ensure that the project implementation is of high quality.", "There is a clear quality assurance plan which also covers project management adequately.", "The monitoring strategy includes risk identification and a mitigating action plan."], levels: [{l:"Exc", r:[7], d:"Comprehensive and highly effective."}, {l:"VG", r:[5,6], d:"Strong with only minor gaps."}, {l:"G", r:[3,4], d:"Generally appropriate but limited."}, {l:"F/P", r:[0,1,2], d:"Weak or insufficiently developed."}] }
         ]
     },
     {
         title: "3. Quality of Partnership", max: 20, threshold: 10,
         items: [
-            { id: "3.1", name: "Configuration", max: 8, 
-              guide: [
-                  "The partnership can ensure the full achievement of the project’s objectives.",
-                  "The consortium possesses all the necessary: Skills, Expertise, Experience, Knowledge in the areas covered by the project.",
-                  "Adequate allocation of time and input among partners is ensured.",
-                  "The skills and competences within the partnership are complementary."
-              ], 
-              levels: [{l:"Exc", r:[7,8], d:"Outstanding complementarity & expertise."}, {l:"VG", r:[5,6], d:"Strong and balanced partnership."}, {l:"G", r:[3,4], d:"Suitable but some expertise gaps exist."}, {l:"F/P", r:[0,1,2], d:"Weak composition."}] 
-            },
-            { id: "3.2", name: "Commitment", max: 5, 
-              guide: [
-                  "Each participating organisation demonstrates full involvement corresponding to its capacities and specific area of expertise."
-              ], 
-              levels: [{l:"Exc", r:[5], d:"Strong commitment & defined roles."}, {l:"VG", r:[4], d:"Substantial commitment."}, {l:"G", r:[2,3], d:"Evident but uneven across partners."}, {l:"F/P", r:[0,1], d:"Limited evidence of engagement."}] 
-            },
-            { id: "3.3", name: "Cooperation Arrangements", max: 7, 
-              guide: [
-                  "The cooperation arrangements are balanced.",
-                  "Effective mechanisms are proposed to ensure: coordination, decision-making, communication between participating organisations, stakeholders, any other relevant parties."
-              ], 
-              levels: [{l:"Exc", r:[7], d:"Highly effective arrangements."}, {l:"VG", r:[5,6], d:"Strong mechanisms."}, {l:"G", r:[3,4], d:"Generally appropriate."}, {l:"F/P", r:[0,1,2], d:"Weak or unclear."}] 
-            }
+            { id: "3.1", name: "Configuration", max: 8, guide: ["The partnership can ensure the full achievement of the project’s objectives.", "The consortium possesses all the necessary: Skills, Expertise, Experience, Knowledge in the areas covered by the project.", "Adequate allocation of time and input among partners is ensured.", "The skills and competences within the partnership are complementary."], levels: [{l:"Exc", r:[7,8], d:"Outstanding complementarity & expertise."}, {l:"VG", r:[5,6], d:"Strong and balanced partnership."}, {l:"G", r:[3,4], d:"Suitable but some expertise gaps exist."}, {l:"F/P", r:[0,1,2], d:"Weak composition."}] },
+            { id: "3.2", name: "Commitment", max: 5, guide: ["Each participating organisation demonstrates full involvement corresponding to its capacities and specific area of expertise."], levels: [{l:"Exc", r:[5], d:"Strong commitment & defined roles."}, {l:"VG", r:[4], d:"Substantial commitment."}, {l:"G", r:[2,3], d:"Evident but uneven across partners."}, {l:"F/P", r:[0,1], d:"Limited evidence of engagement."}] },
+            { id: "3.3", name: "Cooperation Arrangements", max: 7, guide: ["The cooperation arrangements are balanced.", "Effective mechanisms are proposed to ensure: coordination, decision-making, communication between participating organisations, stakeholders, any other relevant parties."], levels: [{l:"Exc", r:[7], d:"Highly effective arrangements."}, {l:"VG", r:[5,6], d:"Strong mechanisms."}, {l:"G", r:[3,4], d:"Generally appropriate."}, {l:"F/P", r:[0,1,2], d:"Weak or unclear."}] }
         ]
     },
     {
         title: "4. Impact", max: 20, threshold: 10,
         items: [
-            { id: "4.1", name: "Dissemination", max: 5, 
-              guide: [
-                  "A clear awareness-raising, dissemination, and communication strategy is presented throughout the lifetime of the project.",
-                  "The strategy ensures outreach to: Relevant target groups, Stakeholders, the general public",
-                  "The strategy includes plans to make produced materials accessible through open licenses."
-              ], 
-              levels: [{l:"Exc", r:[5], d:"Comprehensive, targeted, sustainable."}, {l:"VG", r:[4], d:"Strong with minor limitations."}, {l:"G", r:[2,3], d:"Adequate but insufficiently detailed."}, {l:"F/P", r:[0,1], d:"Weak or unclear."}] 
-            },
-            { id: "4.2", name: "Exploitation", max: 5, 
-              guide: [
-                  "The application demonstrates that the selected virtual exchange approach(es) can be successfully disseminated.",
-                  "The project is expected to Create a wider impact and influence systemic change",
-                  "The exploitation approach is clearly described and the proposed measures for exploiting project results are potentially effective."
-              ], 
-              levels: [{l:"Exc", r:[5], d:"Highly credible systemic impact."}, {l:"VG", r:[4], d:"Convincing with minor weaknesses."}, {l:"G", r:[2,3], d:"Generally appropriate, limited ambition."}, {l:"F/P", r:[0,1], d:"Weakly developed."}] 
-            },
-            { id: "4.3", name: "Impact", max: 7, 
-              guide: [
-                  "The foreseeable impact, particularly for the identified target groups, is clearly defined.",
-                  "Measures are in place to ensure that the impact can be achieved and evaluated",
-                  "The results of the activities are likely to be significant.",
-                  "The project outcomes have the potential to support: Long-term changes, Improvements, Developments",
-                  "These outcomes benefit the target groups and relevant systems concerned.",
-                  "The application explains how the impact of learning outcomes through virtual exchange will be evaluated.",
-                  "The evaluation aims to provide data-informed recommendations to improve virtual exchange teaching and learning beyond the project."
-              ], 
-              levels: [{l:"Exc", r:[7], d:"Highly significant and measurable."}, {l:"VG", r:[5,6], d:"Clearly articulated and supported."}, {l:"G", r:[3,4], d:"Relevant but insufficiently evidenced."}, {l:"F/P", r:[0,1,2], d:"Vague or inadequately justified."}] 
-            },
-            { id: "4.4", name: "Sustainability", max: 3, 
-              guide: [
-                  "The application includes appropriate measures and resources to ensure sustainability.",
-                  "The results and benefits of the project are intended to continue beyond the project lifetime."
-              ], 
-              levels: [{l:"Exc", r:[3], d:"Robust, realistic, adequately resourced."}, {l:"VG", r:[2], d:"Appropriately addressed."}, {l:"G", r:[], d:"N/A"}, {l:"F/P", r:[0,1], d:"Weak or insufficiently detailed."}] 
-            }
+            { id: "4.1", name: "Dissemination", max: 5, guide: ["A clear awareness-raising, dissemination, and communication strategy is presented throughout the lifetime of the project.", "The strategy ensures outreach to: Relevant target groups, Stakeholders, the general public", "The strategy includes plans to make produced materials accessible through open licenses."], levels: [{l:"Exc", r:[5], d:"Comprehensive, targeted, sustainable."}, {l:"VG", r:[4], d:"Strong with minor limitations."}, {l:"G", r:[2,3], d:"Adequate but insufficiently detailed."}, {l:"F/P", r:[0,1], d:"Weak or unclear."}] },
+            { id: "4.2", name: "Exploitation", max: 5, guide: ["The application demonstrates that the selected virtual exchange approach(es) can be successfully disseminated.", "The project is expected to Create a wider impact and influence systemic change", "The exploitation approach is clearly described and the proposed measures for exploiting project results are potentially effective."], levels: [{l:"Exc", r:[5], d:"Highly credible systemic impact."}, {l:"VG", r:[4], d:"Convincing with minor weaknesses."}, {l:"G", r:[2,3], d:"Generally appropriate, limited ambition."}, {l:"F/P", r:[0,1], d:"Weakly developed."}] },
+            { id: "4.3", name: "Impact", max: 7, guide: ["The foreseeable impact, particularly for the identified target groups, is clearly defined.", "Measures are in place to ensure that the impact can be achieved and evaluated", "The results of the activities are likely to be significant.", "The project outcomes have the potential to support: Long-term changes, Improvements, Developments", "These outcomes benefit the target groups and relevant systems concerned.", "The application explains how the impact of learning outcomes through virtual exchange will be evaluated.", "The evaluation aims to provide data-informed recommendations to improve virtual exchange teaching and learning beyond the project."], levels: [{l:"Exc", r:[7], d:"Highly significant and measurable."}, {l:"VG", r:[5,6], d:"Clearly articulated and supported."}, {l:"G", r:[3,4], d:"Relevant but insufficiently evidenced."}, {l:"F/P", r:[0,1,2], d:"Vague or inadequately justified."}] },
+            { id: "4.4", name: "Sustainability", max: 3, guide: ["The application includes appropriate measures and resources to ensure sustainability.", "The results and benefits of the project are intended to continue beyond the project lifetime."], levels: [{l:"Exc", r:[3], d:"Robust, realistic, adequately resourced."}, {l:"VG", r:[2], d:"Appropriately addressed."}, {l:"G", r:[], d:"N/A"}, {l:"F/P", r:[0,1], d:"Weak or insufficiently detailed."}] }
         ]
     }
 ];
@@ -329,11 +214,22 @@ function init() {
                     </div>
                     
                     <div class="vocab-container" id="vocab-container-${item.id.replace('.','-')}">
-                        <div class="vocab-title">Suggested Vocabulary for your score: <small>(Click to copy is not active, just reference)</small></div>
+                        <div class="vocab-title">Suggested Vocabulary for your score:</div>
                         <div class="vocab-list" id="vocab-list-${item.id.replace('.','-')}"></div>
                     </div>
                     
                     <textarea class="comment-area" id="comment-${item.id.replace('.','-')}" placeholder="Enter form evaluation for ${item.id}..." oninput="calculate()"></textarea>
+                    
+                    <div class="evidence-box">
+                        <label>Upload Evidence / Screenshot (Optional):</label>
+                        <input type="file" id="file-${item.id.replace('.','-')}" accept="image/*" onchange="handleImageUpload(this, '${item.id}')">
+                        <div class="preview-container" id="preview-container-${item.id.replace('.','-')}">
+                            <img id="preview-${item.id.replace('.','-')}" src="" onclick="openModal(this.src)" title="Click to enlarge">
+                            <button type="button" class="btn-remove-img" onclick="removeImage('${item.id}')">Remove</button>
+                        </div>
+                        <input type="hidden" id="img-data-${item.id.replace('.','-')}" value="">
+                    </div>
+
                     <input type="hidden" class="score-val" data-sec="${sIdx}" id="val-${item.id.replace('.','-')}" value="0">
                 </div>`;
         });
@@ -342,7 +238,6 @@ function init() {
         summaryList.innerHTML += `<div class="summary-row"><span>${sec.title.split('.')[0]}. Criterion Score</span> <b id="sum-${sIdx}" style="font-size:1.1rem">0 / ${sec.max}</b></div>`;
     });
 
-    // OVERALL COMMENTS & HYBRID CHECKLIST (KORUNDU)
     const overall = document.createElement('div');
     overall.className = 'section-card';
     overall.style.background = '#f8fafc';
@@ -353,12 +248,10 @@ function init() {
             <label style="font-weight:600; display:block; margin-bottom:8px">Evaluation Summary (Conclusion): <br><small style="color:#64748b; font-weight:normal">(Approximately 3-5 lines + summarize assessment conclusions)</small></label>
             <textarea class="comment-area" id="overall-summary" placeholder="Executive Summary..."></textarea>
         </div>
-        
         <div style="margin-bottom:20px">
             <label style="font-weight:600; display:block; margin-bottom:8px">Main Strengths: <br><small style="color:#64748b; font-weight:normal">(Approximately 3-5 bullet points)</small></label>
             <textarea class="comment-area" id="overall-strengths" style="min-height:90px" placeholder="- Point 1&#10;- Point 2"></textarea>
         </div>
-        
         <div style="margin-bottom:20px">
             <label style="font-weight:600; display:block; margin-bottom:8px">Main Weaknesses: <br><small style="color:#64748b; font-weight:normal">(Approximately 3-5 bullet points)</small></label>
             <textarea class="comment-area" id="overall-weaknesses" style="min-height:90px" placeholder="- Point 1&#10;- Point 2"></textarea>
@@ -366,55 +259,31 @@ function init() {
 
         <div style="margin-top:40px; border-top:2px solid var(--border); padding-top:25px;">
             <h3 style="margin-top:0; color:var(--primary); font-size:1.3rem;">Feedback to the Evaluation Committee</h3>
-            
             <div style="display:flex; gap:25px; flex-wrap:wrap; margin-bottom:25px;">
-                
                 <div class="hybrid-group">
                     <h4 style="margin-top:0; color:var(--accent); border-bottom:1px solid var(--border); padding-bottom:8px;">1. Eligibility Checks</h4>
-                    
-                    <div class="hybrid-item">
-                        <span>Relevant type of organisation as Coordinator?</span>
-                        <select id="chk-coord"><option value="YES">YES</option><option value="NO">NO</option></select>
-                    </div>
-                    <div class="hybrid-item">
-                        <span>Partners comply with composition rules?</span>
-                        <select id="chk-partners"><option value="YES">YES</option><option value="NO">NO</option></select>
-                    </div>
-                    <div class="hybrid-item">
-                        <span>Activities take place in participating countries?</span>
-                        <select id="chk-activities"><option value="YES">YES</option><option value="NO">NO</option></select>
-                    </div>
-                    
-                    <label style="font-size:0.85rem; color:#64748b; margin-top:15px; display:block;"><b>Qualitative Notes (If any issues):</b></label>
+                    <div class="hybrid-item"><span>Relevant type of organisation as Coordinator?</span><select id="chk-coord"><option value="YES">YES</option><option value="NO">NO</option></select></div>
+                    <div class="hybrid-item"><span>Partners comply with composition rules?</span><select id="chk-partners"><option value="YES">YES</option><option value="NO">NO</option></select></div>
+                    <div class="hybrid-item"><span>Activities take place in participating countries?</span><select id="chk-activities"><option value="YES">YES</option><option value="NO">NO</option></select></div>
+                    <label style="font-size:0.85rem; color:#64748b; margin-top:15px; display:block;"><b>Qualitative Notes:</b></label>
                     <textarea class="comment-area" id="chk-eligNotes" style="min-height:60px; margin-top:5px; padding:10px;" placeholder="Add eligibility comments..."></textarea>
                 </div>
-
                 <div class="hybrid-group">
                     <h4 style="margin-top:0; color:var(--accent); border-bottom:1px solid var(--border); padding-bottom:8px;">2. Completeness & Funding Rules</h4>
-                    
                     <label style="font-size:0.9rem; font-weight:600; display:block; margin-bottom:5px;">Completeness Checks:</label>
                     <label style="font-size:0.8rem; color:#64748b; display:block; margin-bottom:10px;">(Please add if the proposal is over 40 pages, uses a different template, or if sections are missing)</label>
                     <textarea class="comment-area" id="chk-completenessText" style="min-height:70px; margin-bottom:20px; padding:10px;" placeholder="Write completeness issues here..."></textarea>
-                    
                     <label style="font-size:0.9rem; font-weight:600; display:block; margin-bottom:10px;">Funding Rules:</label>
-                    <div class="hybrid-item">
-                        <span>200 EUR per participant rule respected?</span>
-                        <select id="chk-eur200"><option value="YES">YES</option><option value="NO">NO</option></select>
-                    </div>
-                    <div class="hybrid-item">
-                        <span>95% co-financing rate applied?</span>
-                        <select id="chk-perc95"><option value="YES">YES</option><option value="NO">NO</option></select>
-                    </div>
-                    
+                    <div class="hybrid-item"><span>200 EUR per participant rule respected?</span><select id="chk-eur200"><option value="YES">YES</option><option value="NO">NO</option></select></div>
+                    <div class="hybrid-item"><span>95% co-financing rate applied?</span><select id="chk-perc95"><option value="YES">YES</option><option value="NO">NO</option></select></div>
                     <label style="font-size:0.85rem; color:#64748b; margin-top:10px; display:block;"><b>Funding Notes:</b></label>
                     <textarea class="comment-area" id="chk-fundingNotes" style="min-height:50px; margin-top:5px; padding:10px;" placeholder="Additional funding notes..."></textarea>
                 </div>
             </div>
-
             <div style="display:flex; align-items:center; justify-content:space-between; background:white; padding:20px; border-radius:12px; border:2px solid var(--border)">
                 <div>
                     <div style="font-weight:800; color:var(--primary); font-size:1.1rem;">Financial Shortcomings / Budget Re-shuffle Needed?</div>
-                    <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">(Select YES if the budget requires adjustments based on your evaluation)</div>
+                    <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">(Select YES if the budget requires adjustments)</div>
                 </div>
                 <select id="budget-check" style="padding:10px 20px; border-radius:8px; border:2px solid var(--border); font-weight:800; outline:none; cursor:pointer; font-size:1rem;">
                     <option value="NO">NO - Budget is reasonable</option>
@@ -426,6 +295,62 @@ function init() {
     main.appendChild(overall);
 
     loadProjectList();
+}
+
+// Görsel Sıkıştırma (Performans & Hücre Limiti İçin)
+function handleImageUpload(input, itemId) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 1000;
+            const MAX_HEIGHT = 1000;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            } else {
+                if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Veriyi Base64'e çevir
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.6); 
+            
+            const cleanId = itemId.replace('.', '-');
+            document.getElementById(`preview-${cleanId}`).src = dataUrl;
+            document.getElementById(`preview-container-${cleanId}`).style.display = 'flex';
+            document.getElementById(`img-data-${cleanId}`).value = dataUrl;
+        }
+        img.src = e.target.result;
+    }
+    reader.readAsDataURL(file);
+}
+
+function removeImage(itemId) {
+    const cleanId = itemId.replace('.', '-');
+    document.getElementById(`preview-${cleanId}`).src = '';
+    document.getElementById(`preview-container-${cleanId}`).style.display = 'none';
+    document.getElementById(`img-data-${cleanId}`).value = '';
+    document.getElementById(`file-${cleanId}`).value = '';
+}
+
+function openModal(src) {
+    document.getElementById('modal-img').src = src;
+    document.getElementById('image-modal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('image-modal').style.display = 'none';
 }
 
 function getScoreColorClass(s, lvls) {
@@ -443,11 +368,10 @@ function selectScore(btn, sIdx, itemId, score, cls) {
     btn.className = `btn-score active ${cls}`;
     document.getElementById(`val-${cleanId}`).value = score;
     
-    // Kelime Öneri Havuzunu Göster (Vocab Logic)
     let vocabContainer = document.getElementById(`vocab-container-${cleanId}`);
     let vocabList = document.getElementById(`vocab-list-${cleanId}`);
-    
     vocabContainer.style.display = 'block';
+    
     if(cls === 'excellent' || cls === 'verygood' || cls === 'good') {
         vocabList.innerHTML = positiveVocab.map(w => `<span class="vocab-tag pos">${w}</span>`).join('');
     } else {
@@ -462,7 +386,6 @@ function calculate() {
     rubricData.forEach((sec, sIdx) => {
         let secTotal = 0;
         let secWords = 0;
-        
         sec.items.forEach(item => {
             let valId = item.id.replace('.','-');
             secTotal += parseInt(document.getElementById(`val-${valId}`).value) || 0;
@@ -511,19 +434,14 @@ function handleProjectSelection() {
     if (val === "NEW") {
         document.getElementById('proj-no').value = '';
         document.getElementById('proj-name').value = '';
-        
-        // Clear Overall Texts
         document.getElementById('overall-summary').value = '';
         document.getElementById('overall-strengths').value = '';
         document.getElementById('overall-weaknesses').value = '';
         document.getElementById('budget-check').value = 'NO';
-        
-        // Clear Hybrid Elements
         document.getElementById('chk-coord').value = 'YES';
         document.getElementById('chk-partners').value = 'YES';
         document.getElementById('chk-activities').value = 'YES';
         document.getElementById('chk-eligNotes').value = '';
-        
         document.getElementById('chk-completenessText').value = '';
         document.getElementById('chk-eur200').value = 'YES';
         document.getElementById('chk-perc95').value = 'YES';
@@ -532,10 +450,10 @@ function handleProjectSelection() {
         document.querySelectorAll('.btn-score').forEach(b => b.className = 'btn-score');
         document.querySelectorAll('.score-val').forEach(v => v.value = '0');
         document.querySelectorAll('.comment-area').forEach(t => t.value = '');
-        
-        // Gizli vocab konteynerlarını kapa
         document.querySelectorAll('.vocab-container').forEach(c => c.style.display = 'none');
         
+        // Temizle images
+        rubricData.forEach(sec => { sec.items.forEach(item => removeImage(item.id)); });
         calculate();
     } else {
         loadProjectData(val);
@@ -550,7 +468,6 @@ function loadProjectData(projNo) {
     .then(res => res.json())
     .then(data => {
         document.getElementById('loader').style.display = "none";
-        
         if(data.status === 'success') {
             document.getElementById('proj-no').value = data.projectNumber;
             document.getElementById('proj-name').value = data.projectName;
@@ -566,7 +483,6 @@ function loadProjectData(projNo) {
                     document.getElementById('chk-partners').value = data.overall.checks.partners || 'YES';
                     document.getElementById('chk-activities').value = data.overall.checks.activities || 'YES';
                     document.getElementById('chk-eligNotes').value = data.overall.checks.eligNotes || '';
-                    
                     document.getElementById('chk-completenessText').value = data.overall.checks.completenessText || '';
                     document.getElementById('chk-eur200').value = data.overall.checks.eur200 || 'YES';
                     document.getElementById('chk-perc95').value = data.overall.checks.perc95 || 'YES';
@@ -581,6 +497,15 @@ function loadProjectData(projNo) {
                 
                 let btn = document.getElementById(`btn-${valId}-${data.details[id].score}`);
                 if(btn) btn.click();
+
+                // Görsel Yüklemesi Varsa
+                if(data.details[id].imageUrl) {
+                    document.getElementById(`preview-${valId}`).src = data.details[id].imageUrl;
+                    document.getElementById(`preview-container-${valId}`).style.display = 'flex';
+                    document.getElementById(`img-data-${valId}`).value = data.details[id].imageUrl;
+                } else {
+                    removeImage(id);
+                }
             });
         }
     })
@@ -598,7 +523,7 @@ function saveToSheets() {
         return;
     }
 
-    document.getElementById('loader-text').innerText = "Saving to Database...";
+    document.getElementById('loader-text').innerText = "Uploading Evidence & Saving to Database...";
     document.getElementById('loader').style.display = "flex";
     
     let payload = {
@@ -632,10 +557,20 @@ function saveToSheets() {
             let valId = item.id.replace('.','-');
             let score = parseInt(document.getElementById(`val-${valId}`).value) || 0;
             secScore += score;
+            
+            let imgData = document.getElementById(`img-data-${valId}`).value;
             payload.details[item.id] = { 
                 score: score, 
                 comment: document.getElementById(`comment-${valId}`).value 
             };
+            
+            // Eğer yeni bir görsel (Base64) yüklendiyse pakete ekle
+            if (imgData && imgData.startsWith('data:image')) {
+                payload.details[item.id].image = imgData;
+            } else if (imgData && imgData.startsWith('http')) {
+                // Önceden yüklenmiş Drive URL'si ise URL olarak gönder
+                payload.details[item.id].imageUrl = imgData;
+            }
         });
         payload.secTotals[`sec${sIdx}`] = secScore;
     });
@@ -651,7 +586,7 @@ function saveToSheets() {
         if(res.result === "success") {
             alert("Success! Record securely saved to the database.");
             loadProjectList(); 
-            setTimeout(() => { document.getElementById('project-selector').value = projNo; }, 500);
+            setTimeout(() => { document.getElementById('project-selector').value = projNo; handleProjectSelection(); }, 500);
         } else {
             alert("Database Error: " + res.error);
         }
