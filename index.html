@@ -50,6 +50,11 @@
         .comment-area { width: 100%; box-sizing: border-box; padding: 15px; border: 1px solid var(--border); border-radius: 8px; min-height: 120px; font-family: inherit; font-size: 0.95rem; line-height: 1.5; resize: vertical; }
         .comment-area:focus { outline: none; border-color: var(--accent); }
 
+        /* Hybrid Checklist & Qualitative Group */
+        .hybrid-group { background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border); flex: 1; min-width: 300px; }
+        .hybrid-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.95rem; font-weight: 500; }
+        .hybrid-item select { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); font-weight: bold; cursor: pointer; outline: none; }
+
         /* Sidebar */
         .sidebar { position: sticky; top: 20px; }
         .score-panel { background: var(--primary); color: white; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
@@ -62,7 +67,6 @@
         .btn-save { width: 100%; background: var(--success); color: white; border: none; padding: 18px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 1.1rem; margin-top: 20px; transition: 0.2s; }
         .btn-save:hover { background: #16a34a; transform: translateY(-2px); }
 
-        /* Loading Screen */
         #loader { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); color: white; align-items: center; justify-content: center; z-index: 1000; font-size: 1.5rem; font-weight: bold; flex-direction: column; gap: 15px; }
         .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -110,13 +114,10 @@
 
 <script>
 // ==========================================
-// 1. DATABASE URL (BURAYA KENDI URL'NIZI YAPISTIRIN)
+// 1. DATABASE URL (YENI URL'YI BURAYA YAZIN)
 // ==========================================
-const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbyznKhcmz_4Fg9ZGWhE3VC7zublSeGY7fx9vhPLow5x9g8DUrayJasMX1HIkZEc2I7TPw/exec"; 
+const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbxHhPPCp47yYA9YbqSl-T0ZEyKNMIuxTZkBzNI8ot37dgCilYb5RA5av8lznuZ0QEnM/exec"; 
 
-// ==========================================
-// 2. RUBRIC & GUIDELINES DATA
-// ==========================================
 const rubricData = [
     {
         title: "1. Relevance", max: 30, threshold: 15,
@@ -156,15 +157,12 @@ const rubricData = [
     }
 ];
 
-// ==========================================
-// 3. INITIALIZATION & UI BUILDER
-// ==========================================
 function init() {
     const main = document.getElementById('main-content');
     const summaryList = document.getElementById('summary-list');
     main.innerHTML = ''; summaryList.innerHTML = '';
     
-    // Build Dynamic Sections
+    // Rubrik ve Kriter Kartları
     rubricData.forEach((sec, sIdx) => {
         const secDiv = document.createElement('div');
         secDiv.className = 'section-card';
@@ -211,41 +209,93 @@ function init() {
         summaryList.innerHTML += `<div class="summary-row"><span>${sec.title.split('.')[0]}. Criterion Score</span> <b id="sum-${sIdx}" style="font-size:1.1rem">0 / ${sec.max}</b></div>`;
     });
 
-    // Build Overall Comments Section (Strengths, Weaknesses, etc.)
+    // OVERALL COMMENTS (Hiçbiri Silinmedi) & YENİ HYBRID CHECKLIST
     const overall = document.createElement('div');
     overall.className = 'section-card';
     overall.style.background = '#f8fafc';
     overall.innerHTML = `
         <div class="section-title" style="margin-bottom:20px;">Final Conclusions</div>
+        
         <div style="margin-bottom:20px">
-            <label style="font-weight:600; display:block; margin-bottom:8px">Evaluation Summary:</label>
-            <textarea class="comment-area" id="overall-summary" placeholder="Provide a general summary of the proposal..."></textarea>
+            <label style="font-weight:600; display:block; margin-bottom:8px">Evaluation Summary (Conclusion): <br><small style="color:#64748b; font-weight:normal">(Approximately 3-5 lines + summarize assessment conclusions)</small></label>
+            <textarea class="comment-area" id="overall-summary" placeholder="Executive Summary..."></textarea>
         </div>
+        
         <div style="margin-bottom:20px">
-            <label style="font-weight:600; display:block; margin-bottom:8px">Main Strengths:</label>
+            <label style="font-weight:600; display:block; margin-bottom:8px">Main Strengths: <br><small style="color:#64748b; font-weight:normal">(Approximately 3-5 bullet points)</small></label>
             <textarea class="comment-area" id="overall-strengths" style="min-height:90px" placeholder="- Point 1&#10;- Point 2"></textarea>
         </div>
+        
         <div style="margin-bottom:20px">
-            <label style="font-weight:600; display:block; margin-bottom:8px">Main Weaknesses:</label>
+            <label style="font-weight:600; display:block; margin-bottom:8px">Main Weaknesses: <br><small style="color:#64748b; font-weight:normal">(Approximately 3-5 bullet points)</small></label>
             <textarea class="comment-area" id="overall-weaknesses" style="min-height:90px" placeholder="- Point 1&#10;- Point 2"></textarea>
         </div>
-        <div style="display:flex; align-items:center; gap:15px; background:white; padding:15px; border-radius:8px; border:1px solid var(--border)">
-            <label style="font-weight:600; color:var(--primary)">Financial Shortcomings / Budget Issues?</label>
-            <select id="budget-check" style="padding:8px; border-radius:6px; border:1px solid var(--border); font-weight:bold; outline:none">
-                <option value="NO">NO - Budget is appropriate</option>
-                <option value="YES">YES - Issues identified</option>
-            </select>
+
+        <div style="margin-top:40px; border-top:2px solid var(--border); padding-top:25px;">
+            <h3 style="margin-top:0; color:var(--primary); font-size:1.3rem;">Feedback to the Evaluation Committee</h3>
+            
+            <div style="display:flex; gap:25px; flex-wrap:wrap; margin-bottom:25px;">
+                
+                <div class="hybrid-group">
+                    <h4 style="margin-top:0; color:var(--accent); border-bottom:1px solid var(--border); padding-bottom:8px;">1. Eligibility Checks</h4>
+                    
+                    <div class="hybrid-item">
+                        <span>Relevant type of organisation as Coordinator?</span>
+                        <select id="chk-coord"><option value="YES">YES</option><option value="NO">NO</option></select>
+                    </div>
+                    <div class="hybrid-item">
+                        <span>Partners comply with composition rules?</span>
+                        <select id="chk-partners"><option value="YES">YES</option><option value="NO">NO</option></select>
+                    </div>
+                    <div class="hybrid-item">
+                        <span>Activities take place in participating countries?</span>
+                        <select id="chk-activities"><option value="YES">YES</option><option value="NO">NO</option></select>
+                    </div>
+                    
+                    <label style="font-size:0.85rem; color:#64748b; margin-top:15px; display:block;"><b>Qualitative Notes (If any issues):</b></label>
+                    <textarea class="comment-area" id="chk-eligNotes" style="min-height:60px; margin-top:5px; padding:10px;" placeholder="Add eligibility comments..."></textarea>
+                </div>
+
+                <div class="hybrid-group">
+                    <h4 style="margin-top:0; color:var(--accent); border-bottom:1px solid var(--border); padding-bottom:8px;">2. Completeness & Funding Rules</h4>
+                    
+                    <label style="font-size:0.9rem; font-weight:600; display:block; margin-bottom:5px;">Completeness Checks:</label>
+                    <label style="font-size:0.8rem; color:#64748b; display:block; margin-bottom:10px;">(Please add if the proposal is over 40 pages, uses a different template, or if sections are missing)</label>
+                    <textarea class="comment-area" id="chk-completenessText" style="min-height:70px; margin-bottom:20px; padding:10px;" placeholder="Write completeness issues here..."></textarea>
+                    
+                    <label style="font-size:0.9rem; font-weight:600; display:block; margin-bottom:10px;">Funding Rules:</label>
+                    <div class="hybrid-item">
+                        <span>200 EUR per participant rule respected?</span>
+                        <select id="chk-eur200"><option value="YES">YES</option><option value="NO">NO</option></select>
+                    </div>
+                    <div class="hybrid-item">
+                        <span>95% co-financing rate applied?</span>
+                        <select id="chk-perc95"><option value="YES">YES</option><option value="NO">NO</option></select>
+                    </div>
+                    
+                    <label style="font-size:0.85rem; color:#64748b; margin-top:10px; display:block;"><b>Funding Notes:</b></label>
+                    <textarea class="comment-area" id="chk-fundingNotes" style="min-height:50px; margin-top:5px; padding:10px;" placeholder="Additional funding notes..."></textarea>
+                </div>
+
+            </div>
+
+            <div style="display:flex; align-items:center; justify-content:space-between; background:white; padding:20px; border-radius:12px; border:2px solid var(--border)">
+                <div>
+                    <div style="font-weight:800; color:var(--primary); font-size:1.1rem;">Financial Shortcomings / Budget Re-shuffle Needed?</div>
+                    <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">(Select YES if the budget requires adjustments based on your evaluation)</div>
+                </div>
+                <select id="budget-check" style="padding:10px 20px; border-radius:8px; border:2px solid var(--border); font-weight:800; outline:none; cursor:pointer; font-size:1rem;">
+                    <option value="NO">NO - Budget is reasonable</option>
+                    <option value="YES">YES - Adjustments needed</option>
+                </select>
+            </div>
         </div>
     `;
     main.appendChild(overall);
 
-    // Fetch existing projects from database
     loadProjectList();
 }
 
-// ==========================================
-// 4. CORE LOGIC & CALCULATION
-// ==========================================
 function getScoreColorClass(s, lvls) {
     if(lvls[0].r.includes(s)) return 'excellent';
     if(lvls[1].r.includes(s)) return 'verygood';
@@ -271,19 +321,16 @@ function calculate() {
         sec.items.forEach(item => {
             let valId = item.id.replace('.','-');
             secTotal += parseInt(document.getElementById(`val-${valId}`).value) || 0;
-            
             let txt = document.getElementById(`comment-${valId}`).value.trim();
             secWords += txt ? txt.split(/\s+/).length : 0;
         });
 
-        // Update Section Headers & Word Limits
         document.getElementById(`sec-total-${sIdx}`).innerText = `${secTotal} / ${sec.max}`;
         let limitBadge = document.getElementById(`limit-${sIdx}`);
         limitBadge.innerText = `Words: ${secWords} / 4000`;
         limitBadge.style.color = secWords > 4000 ? 'var(--danger)' : '#64748b';
         limitBadge.style.background = secWords > 4000 ? '#fee2e2' : '#f1f5f9';
 
-        // Update Sidebar
         let sumText = document.getElementById(`sum-${sIdx}`);
         sumText.innerText = `${secTotal} / ${sec.max}`;
         sumText.style.color = secTotal >= sec.threshold ? 'var(--success)' : 'var(--danger)';
@@ -291,16 +338,12 @@ function calculate() {
         grand += secTotal;
     });
 
-    // Update Grand Total and Status Badge
     document.getElementById('grand-total').innerText = grand;
     const badge = document.getElementById('status-badge');
     badge.innerText = grand >= 60 ? "PASSED" : "FAILED";
     badge.style.background = grand >= 60 ? "var(--success)" : "var(--danger)";
 }
 
-// ==========================================
-// 5. DATABASE OPERATIONS (FETCH / POST)
-// ==========================================
 function loadProjectList() {
     fetch(GOOGLE_APP_URL + "?action=getList")
     .then(res => res.json())
@@ -308,7 +351,7 @@ function loadProjectList() {
         const sel = document.getElementById('project-selector');
         sel.innerHTML = '<option value="NEW">-- Create New Project Form --</option>';
         list.forEach(id => {
-            if(id) { // Boş satırları atla
+            if(id) { 
                 const opt = document.createElement('option');
                 opt.value = id; opt.innerText = id; 
                 sel.appendChild(opt);
@@ -321,13 +364,25 @@ function loadProjectList() {
 function handleProjectSelection() {
     const val = document.getElementById('project-selector').value;
     if (val === "NEW") {
-        // Reset everything
         document.getElementById('proj-no').value = '';
         document.getElementById('proj-name').value = '';
+        
+        // Clear Overall Texts
         document.getElementById('overall-summary').value = '';
         document.getElementById('overall-strengths').value = '';
         document.getElementById('overall-weaknesses').value = '';
         document.getElementById('budget-check').value = 'NO';
+        
+        // Clear Hybrid Elements
+        document.getElementById('chk-coord').value = 'YES';
+        document.getElementById('chk-partners').value = 'YES';
+        document.getElementById('chk-activities').value = 'YES';
+        document.getElementById('chk-eligNotes').value = '';
+        
+        document.getElementById('chk-completenessText').value = '';
+        document.getElementById('chk-eur200').value = 'YES';
+        document.getElementById('chk-perc95').value = 'YES';
+        document.getElementById('chk-fundingNotes').value = '';
         
         document.querySelectorAll('.btn-score').forEach(b => b.className = 'btn-score');
         document.querySelectorAll('.score-val').forEach(v => v.value = '0');
@@ -351,22 +406,32 @@ function loadProjectData(projNo) {
             document.getElementById('proj-no').value = data.projectNumber;
             document.getElementById('proj-name').value = data.projectName;
             
-            // Handle overall comments
             if(data.overall) {
                 document.getElementById('overall-summary').value = data.overall.summary || "";
                 document.getElementById('overall-strengths').value = data.overall.strengths || "";
                 document.getElementById('overall-weaknesses').value = data.overall.weaknesses || "";
                 document.getElementById('budget-check').value = data.overall.budgetCheck || "NO";
+                
+                if(data.overall.checks) {
+                    document.getElementById('chk-coord').value = data.overall.checks.coord || 'YES';
+                    document.getElementById('chk-partners').value = data.overall.checks.partners || 'YES';
+                    document.getElementById('chk-activities').value = data.overall.checks.activities || 'YES';
+                    document.getElementById('chk-eligNotes').value = data.overall.checks.eligNotes || '';
+                    
+                    document.getElementById('chk-completenessText').value = data.overall.checks.completenessText || '';
+                    document.getElementById('chk-eur200').value = data.overall.checks.eur200 || 'YES';
+                    document.getElementById('chk-perc95').value = data.overall.checks.perc95 || 'YES';
+                    document.getElementById('chk-fundingNotes').value = data.overall.checks.fundingNotes || '';
+                }
             }
 
-            // Restore scores and comments
             Object.keys(data.details).forEach(id => {
                 let valId = id.replace('.', '-');
                 let commentBox = document.getElementById(`comment-${valId}`);
                 if(commentBox) commentBox.value = data.details[id].comment || "";
                 
                 let btn = document.getElementById(`btn-${valId}-${data.details[id].score}`);
-                if(btn) btn.click(); // This will trigger calculate() automatically
+                if(btn) btn.click();
             });
         }
     })
@@ -398,7 +463,17 @@ function saveToSheets() {
             summary: document.getElementById('overall-summary').value,
             strengths: document.getElementById('overall-strengths').value,
             weaknesses: document.getElementById('overall-weaknesses').value,
-            budgetCheck: document.getElementById('budget-check').value
+            budgetCheck: document.getElementById('budget-check').value,
+            checks: {
+                coord: document.getElementById('chk-coord').value,
+                partners: document.getElementById('chk-partners').value,
+                activities: document.getElementById('chk-activities').value,
+                eligNotes: document.getElementById('chk-eligNotes').value,
+                completenessText: document.getElementById('chk-completenessText').value,
+                eur200: document.getElementById('chk-eur200').value,
+                perc95: document.getElementById('chk-perc95').value,
+                fundingNotes: document.getElementById('chk-fundingNotes').value
+            }
         }
     };
 
@@ -416,22 +491,17 @@ function saveToSheets() {
         payload.secTotals[`sec${sIdx}`] = secScore;
     });
 
-    // POST isteğinde CORS hatasını aşmak için Content-Type text/plain yapıldı.
     fetch(GOOGLE_APP_URL, { 
         method: "POST", 
         body: JSON.stringify(payload),
-        headers: {
-            "Content-Type": "text/plain;charset=utf-8"
-        }
+        headers: { "Content-Type": "text/plain;charset=utf-8" }
     })
     .then(r => r.json())
     .then(res => {
         document.getElementById('loader').style.display = "none";
         if(res.result === "success") {
             alert("Success! Record securely saved to the database.");
-            loadProjectList(); // Yeni kaydı dropdown'a eklemek için listeyi yenile
-            
-            // Menüyü mevcut projeye sabitle
+            loadProjectList(); 
             setTimeout(() => { document.getElementById('project-selector').value = projNo; }, 500);
         } else {
             alert("Database Error: " + res.error);
@@ -443,7 +513,6 @@ function saveToSheets() {
     });
 }
 
-// Start application
 window.onload = init;
 </script>
 </body>
