@@ -1,413 +1,450 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EVE 2026 Professional Evaluation Tool</title>
+    <title>EVE 2026 Admin Dashboard</title>
     <style>
-        :root {
-            --bg: #f0f2f5;
-            --text: #1c1e21;
-            --primary: #2c3e50;
-            --accent: #3498db;
-            --success: #27ae60;
-            --card: #ffffff;
-            --border: #dddfe2;
-        }
+        :root { --bg: #f1f5f9; --primary: #1e293b; --accent: #3b82f6; --success: #22c55e; --danger: #ef4444; --warning: #f59e0b; --border: #cbd5e1; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 20px; line-height: 1.6; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        /* Top Navigation & Project Selection */
+        .nav-panel { background: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 20px; border-top: 4px solid var(--accent); flex-wrap: wrap; }
+        .nav-group { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 300px; }
+        .nav-panel select, .nav-panel input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; flex: 1; outline: none; }
+        .nav-panel select { background: #f8fafc; font-weight: 600; cursor: pointer; }
+        .nav-panel select:focus, .nav-panel input:focus { border-color: var(--accent); }
 
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            line-height: 1.5;
-        }
+        .layout { display: grid; grid-template-columns: 1fr 380px; gap: 30px; align-items: start; }
+        
+        /* Section Cards */
+        .section-card { background: white; border-radius: 16px; padding: 30px; margin-bottom: 30px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .section-header { border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .section-title { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+        .section-meta { text-align: right; }
+        .word-limit { font-size: 0.85rem; font-weight: 600; color: #64748b; background: #f1f5f9; padding: 4px 12px; border-radius: 20px; margin-bottom: 5px; display: inline-block; }
+        .section-score { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
+        
+        /* Sub Items */
+        .sub-item { border: 1px solid #f1f5f9; border-radius: 12px; padding: 25px; margin-bottom: 30px; background: #ffffff; }
+        .sub-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 15px; border-left: 4px solid var(--accent); padding-left: 12px; color: var(--primary); }
 
-        .container { max-width: 1300px; margin: 0 auto; }
+        /* Scoring Buttons */
+        .score-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
+        .btn-score { width: 42px; height: 42px; border-radius: 8px; border: 1px solid var(--border); background: white; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; color: #475569; }
+        .btn-score:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-score.active.excellent { background: var(--success); color: white; border-color: var(--success); }
+        .btn-score.active.verygood { background: var(--accent); color: white; border-color: var(--accent); }
+        .btn-score.active.good { background: var(--warning); color: white; border-color: var(--warning); }
+        .btn-score.active.fair { background: #fb923c; color: white; border-color: #fb923c; }
+        .btn-score.active.poor { background: var(--danger); color: white; border-color: var(--danger); }
 
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
+        /* Tables & Guides */
+        .rubric-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.85rem; }
+        .rubric-table th, .rubric-table td { border: 1px solid var(--border); padding: 10px; text-align: left; vertical-align: top; width: 25%; }
+        .rubric-table th { background: #f8fafc; color: #475569; }
+        .rubric-table td b { display: block; margin-bottom: 4px; font-size: 0.9rem; }
+        
+        .guide-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 15px; margin-bottom: 15px; font-size: 0.9rem; color: #0369a1; }
+        .comment-area { width: 100%; box-sizing: border-box; padding: 15px; border: 1px solid var(--border); border-radius: 8px; min-height: 120px; font-family: inherit; font-size: 0.95rem; line-height: 1.5; resize: vertical; }
+        .comment-area:focus { outline: none; border-color: var(--accent); }
 
-        .layout { display: grid; grid-template-columns: 1fr 350px; gap: 25px; align-items: start; }
-
-        /* Kriter Kartı Tasarımı */
-        .section-card {
-            background: var(--card);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .section-header {
-            border-bottom: 3px solid var(--accent);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        .sub-item {
-            border: 1px solid #edf0f2;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 25px;
-            background: #fcfcfc;
-        }
-
-        .sub-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .sub-title { font-size: 1.2rem; font-weight: 600; color: #34495e; }
-
-        .score-input-wrapper {
-            background: #eee;
-            padding: 10px 15px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        input[type="number"] {
-            width: 70px;
-            padding: 8px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: 2px solid var(--accent);
-            border-radius: 6px;
-            text-align: center;
-        }
-
-        /* Rubrik Tablosu (Descriptor Alanı) */
-        .rubric-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            background: white;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .rubric-table th, .rubric-table td {
-            border: 1px solid #e1e4e8;
-            padding: 12px;
-            text-align: left;
-            vertical-align: top;
-        }
-
-        .rubric-table th { background: #f8f9fa; color: #586069; font-weight: 600; }
-
-        .level-excellent { border-left: 4px solid #27ae60; background: #f1fcf4; }
-        .level-verygood { border-left: 4px solid #3498db; background: #f1f8fd; }
-        .level-good { border-left: 4px solid #f1c40f; background: #fefdf1; }
-        .level-fail { border-left: 4px solid #e74c3c; background: #fdf2f2; }
-
-        /* Sağ Panel */
+        /* Sidebar */
         .sidebar { position: sticky; top: 20px; }
-        .score-panel {
-            background: var(--primary);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
+        .score-panel { background: var(--primary); color: white; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .grand-total { font-size: 5rem; font-weight: 900; margin: 10px 0; line-height: 1; }
+        .status-badge { padding: 8px 24px; border-radius: 20px; font-weight: bold; font-size: 1rem; display: inline-block; margin-bottom: 20px; }
+        
+        .summary-list { text-align: left; margin-top: 20px; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+        
+        .btn-save { width: 100%; background: var(--success); color: white; border: none; padding: 18px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 1.1rem; margin-top: 20px; transition: 0.2s; }
+        .btn-save:hover { background: #16a34a; transform: translateY(-2px); }
 
-        .grand-total { font-size: 5rem; font-weight: 800; margin: 10px 0; }
-        .status-badge {
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-
-        .summary-details { text-align: left; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; }
-        .sum-row { display: flex; justify-content: space-between; margin-bottom: 10px; opacity: 0.9; }
-
-        .btn-print {
-            width: 100%; padding: 12px; margin-top: 20px;
-            background: var(--success); border: none; color: white;
-            border-radius: 8px; cursor: pointer; font-weight: bold;
-        }
-
-        @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } .sidebar { position: static; } }
+        /* Loading Screen */
+        #loader { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); color: white; align-items: center; justify-content: center; z-index: 1000; font-size: 1.5rem; font-weight: bold; flex-direction: column; gap: 15px; }
+        .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
+<div id="loader">
+    <div class="spinner"></div>
+    <div id="loader-text">Synchronizing with Database...</div>
+</div>
+
 <div class="container">
-    <header>
-        <div>
-            <h1 style="margin:0">EVE 2026 Evaluation Suite</h1>
-            <small>Analytical Scoring & Performance Indicators</small>
+    <div class="nav-panel">
+        <div class="nav-group">
+            <b>Database:</b>
+            <select id="project-selector" onchange="handleProjectSelection()">
+                <option value="NEW">-- Create New Project Form --</option>
+            </select>
         </div>
-        <div id="date-box"></div>
-    </header>
+        <div class="nav-group">
+            <b>ID:</b>
+            <input type="text" id="proj-no" placeholder="EVE-2026-001" style="max-width: 150px;">
+            <b>Title:</b>
+            <input type="text" id="proj-name" placeholder="Enter Proposal Title">
+        </div>
+    </div>
 
     <div class="layout">
-        <main id="main-content">
-            </main>
-
+        <main id="main-content"></main>
+        
         <aside class="sidebar">
             <div class="score-panel">
-                <h3>OVERALL SCORE</h3>
+                <h3 style="margin-top:0; color:#cbd5e1; font-size:1rem; text-transform:uppercase; letter-spacing:1px;">Total Score</h3>
                 <div class="grand-total" id="grand-total">0</div>
-                <div id="status-badge" class="status-badge" style="background:#e74c3c">BELOW THRESHOLD</div>
+                <div id="status-badge" class="status-badge" style="background: var(--danger);">FAILED</div>
                 
-                <div class="summary-details" id="summary-list">
-                    </div>
+                <div id="summary-list" class="summary-list"></div>
                 
-                <button class="btn-print" onclick="window.print()">Sonuçları Yazdır (PDF)</button>
+                <button class="btn-save" onclick="saveToSheets()">SAVE & COMMIT TO DATABASE</button>
             </div>
         </aside>
     </div>
 </div>
 
 <script>
+// ==========================================
+// 1. DATABASE URL (BURAYA KENDI URL'NIZI YAPISTIRIN)
+// ==========================================
+const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbyznKhcmz_4Fg9ZGWhE3VC7zublSeGY7fx9vhPLow5x9g8DUrayJasMX1HIkZEc2I7TPw/exec"; 
+
+// ==========================================
+// 2. RUBRIC & GUIDELINES DATA
+// ==========================================
 const rubricData = [
     {
         title: "1. Relevance", max: 30, threshold: 15,
         items: [
-            { id: "1.1", name: "Link to Objectives and Thematic Areas", max: 7, 
-                levels: [
-                    { label: "Excellent (7)", desc: "Exceptional alignment with objectives and thematic priorities. Highly convincing rationale." },
-                    { label: "Very Good (5–6)", desc: "Strong alignment with minor shortcomings." },
-                    { label: "Good (3–4)", desc: "Adequate alignment, though some aspects insufficiently justified." },
-                    { label: "Fair/Poor (0-2)", desc: "Weak or partial alignment. Characterised by significant gaps." }
-                ]
-            },
-            { id: "1.2", name: "Needs Analysis", max: 7, 
-                levels: [
-                    { label: "Excellent (7)", desc: "Comprehensive, evidence-based, partner-sensitive, and clearly integrated." },
-                    { label: "Very Good (5–6)", desc: "Clearly identified and generally well connected to activities." },
-                    { label: "Good (3–4)", desc: "Adequate but lacks depth, evidence, or differentiation among partners." },
-                    { label: "Fair/Poor (0-2)", desc: "Poorly identified or weakly linked to project activities." }
-                ]
-            },
-            { id: "1.3", name: "Activities", max: 10, 
-                levels: [
-                    { label: "Excellent (9-10)", desc: "Highly coherent, innovative, and strongly support intercultural dialogue and soft skills." },
-                    { label: "Very Good (7–8)", desc: "Well designed and relevant with only limited weaknesses." },
-                    { label: "Good (5–6)", desc: "Generally appropriate but unevenly developed or insufficiently detailed." },
-                    { label: "Fair/Poor (0-4)", desc: "Unclear, weakly justified, or inadequately connected." }
-                ]
-            },
-            { id: "1.4", name: "EU Values", max: 6, 
-                levels: [
-                    { label: "Excellent (6)", desc: "EU values are explicitly and consistently embedded throughout." },
-                    { label: "Very Good (4–5)", desc: "Clearly addressed with minor limitations." },
-                    { label: "Good (2–3)", desc: "Mentioned but insufficiently operationalised." },
-                    { label: "Fair/Poor (0-1)", desc: "Limited or superficial consideration of EU values." }
-                ]
-            }
+            { id: "1.1", name: "Link to Objectives", max: 7, guide: ["Objectives relevance", "Consistency", "Thematic areas"], levels: [{l:"Exc", r:[7], d:"Exceptional alignment with objectives."}, {l:"VG", r:[5,6], d:"Strong alignment with minor shortcomings."}, {l:"G", r:[3,4], d:"Adequate alignment, some aspects unjustified."}, {l:"P", r:[0,1,2], d:"Weak or partial alignment."}] },
+            { id: "1.2", name: "Needs Analysis", max: 7, guide: ["Challenge analysis", "Partner needs"], levels: [{l:"Exc", r:[7], d:"Comprehensive and evidence-based."}, {l:"VG", r:[5,6], d:"Clearly identified and connected."}, {l:"G", r:[3,4], d:"Adequate but lacks depth/evidence."}, {l:"P", r:[0,1,2], d:"Poorly identified."}] },
+            { id: "1.3", name: "Activities", max: 10, guide: ["Dialogue & Skills", "Cross-border cooperation"], levels: [{l:"Exc", r:[9,10], d:"Highly coherent and innovative."}, {l:"VG", r:[7,8], d:"Well designed, limited weaknesses."}, {l:"G", r:[5,6], d:"Generally appropriate, uneven detail."}, {l:"P", r:[0,1,2,3,4], d:"Unclear, weakly justified."}] },
+            { id: "1.4", name: "EU Values", max: 6, guide: ["Dignity, Freedom, Democracy", "Human rights"], levels: [{l:"Exc", r:[6], d:"Explicitly and consistently embedded."}, {l:"VG", r:[4,5], d:"Clearly addressed, minor limitations."}, {l:"G", r:[2,3], d:"Mentioned but insufficiently operationalised."}, {l:"P", r:[0,1], d:"Limited or superficial."}] }
         ]
     },
     {
-        title: "2. Quality of Project Design & Implementation", max: 30, threshold: 15,
+        title: "2. Quality of Project Design", max: 30, threshold: 15,
         items: [
-            { id: "2.1", name: "Coherence", max: 6, 
-                levels: [
-                    { label: "Excellent (6)", desc: "Objectives, activities, methodology, timeline, and budget are fully coherent and realistic." },
-                    { label: "Very Good (4-5)", desc: "Strong coherence with only minor inconsistencies." },
-                    { label: "Good (2-3)", desc: "General coherence exists but important components are weakly aligned." },
-                    { label: "Fair/Poor (0-1)", desc: "Significant inconsistencies affect project feasibility." }
-                ]
-            },
-            { id: "2.2", name: "Methodology", max: 7, 
-                levels: [
-                    { label: "Excellent (7)", desc: "Methodology is highly feasible, appropriate, innovative, and tailored to partner needs." },
-                    { label: "Very Good (5-6)", desc: "Methodology is strong and appropriate with only minor shortcomings." },
-                    { label: "Good (3-4)", desc: "Methodology is generally adequate but insufficiently detailed or justified." },
-                    { label: "Fair/Poor (0-2)", desc: "Methodology is weak, unclear, or unrealistic." }
-                ]
-            },
-            { id: "2.3", name: "Learning Outcomes", max: 5, 
-                levels: [
-                    { label: "Excellent (5)", desc: "Clearly defined, monitored, measured, and formally recognised." },
-                    { label: "Very Good (4)", desc: "Well addressed with minor weaknesses in assessment strategy." },
-                    { label: "Good (2-3)", desc: "Identified but insufficiently measured or monitored." },
-                    { label: "Fair/Poor (0-1)", desc: "Weakly defined or inconsistently addressed." }
-                ]
-            },
-            { id: "2.4", name: "Budget", max: 5, 
-                levels: [
-                    { label: "Excellent (5)", desc: "Excellent value for money and strong consistency between tasks and resources." },
-                    { label: "Very Good (4)", desc: "Realistic and generally coherent with minor inconsistencies." },
-                    { label: "Good (2-3)", desc: "Adequate but insufficiently justified or unevenly allocated." },
-                    { label: "Fair/Poor (0-1)", desc: "Budget is unrealistic or poorly explained." }
-                ]
-            },
-            { id: "2.5", name: "Evaluation", max: 7, 
-                levels: [
-                    { label: "Excellent (7)", desc: "Monitoring, indicators, QA, and risk management are comprehensive and highly effective." },
-                    { label: "Very Good (5-6)", desc: "Evaluation and QA measures are strong with only minor gaps." },
-                    { label: "Good (3-4)", desc: "Generally appropriate but limited in scope or detail." },
-                    { label: "Fair/Poor (0-2)", desc: "Monitoring and QA mechanisms are weak or insufficiently developed." }
-                ]
-            }
+            { id: "2.1", name: "Coherence", max: 6, guide: ["Logic-Budget link", "Realistic set"], levels: [{l:"Exc", r:[6], d:"Fully coherent and realistic."}, {l:"VG", r:[4,5], d:"Strong coherence."}, {l:"G", r:[2,3], d:"General coherence exists."}, {l:"F/P", r:[0,1], d:"Significant inconsistencies."}] },
+            { id: "2.2", name: "Methodology", max: 7, guide: ["Feasibility", "Pedagogical alignment"], levels: [{l:"Exc", r:[7], d:"Highly feasible and appropriate."}, {l:"VG", r:[5,6], d:"Strong and appropriate."}, {l:"G", r:[3,4], d:"Generally adequate."}, {l:"F/P", r:[0,1,2], d:"Weak, unclear, or unrealistic."}] },
+            { id: "2.3", name: "Learning Outcomes", max: 5, guide: ["Measurement & Recognition"], levels: [{l:"Exc", r:[5], d:"Clearly defined, monitored, recognised."}, {l:"VG", r:[4], d:"Well addressed, minor assessment weakness."}, {l:"G", r:[2,3], d:"Identified but insufficiently measured."}, {l:"F/P", r:[0,1], d:"Weakly defined."}] },
+            { id: "2.4", name: "Budget", max: 5, guide: ["Value for money", "Resource task link"], levels: [{l:"Exc", r:[5], d:"Excellent value for money."}, {l:"VG", r:[4], d:"Realistic and generally coherent."}, {l:"G", r:[2,3], d:"Adequate but insufficiently justified."}, {l:"F/P", r:[0,1], d:"Unrealistic or poorly explained."}] },
+            { id: "2.5", name: "Evaluation", max: 7, guide: ["QA & Risk management"], levels: [{l:"Exc", r:[7], d:"Comprehensive and highly effective."}, {l:"VG", r:[5,6], d:"Strong with only minor gaps."}, {l:"G", r:[3,4], d:"Generally appropriate but limited."}, {l:"F/P", r:[0,1,2], d:"Weak or insufficiently developed."}] }
         ]
     },
     {
-        title: "3. Quality of Partnership & Cooperation", max: 20, threshold: 10,
+        title: "3. Quality of Partnership", max: 20, threshold: 10,
         items: [
-            { id: "3.1", name: "Configuration", max: 8, 
-                levels: [
-                    { label: "Excellent (7-8)", desc: "Consortium demonstrates outstanding complementarity and expertise." },
-                    { label: "Very Good (5-6)", desc: "Partnership is strong and appropriately balanced with minor gaps." },
-                    { label: "Good (3-4)", desc: "Generally suitable but some expertise or capacity gaps exist." },
-                    { label: "Fair/Poor (0-2)", desc: "Partnership composition is weak or insufficiently justified." }
-                ]
-            },
-            { id: "3.2", name: "Commitment", max: 5, 
-                levels: [
-                    { label: "Excellent (5)", desc: "All partners demonstrate strong commitment and clearly defined responsibilities." },
-                    { label: "Very Good (4)", desc: "Commitment is substantial with only minor weaknesses." },
-                    { label: "Good (2-3)", desc: "Generally evident but uneven across partners." },
-                    { label: "Fair/Poor (0-1)", desc: "Limited evidence of partner engagement." }
-                ]
-            },
-            { id: "3.3", name: "Cooperation Arrangements", max: 7, 
-                levels: [
-                    { label: "Excellent (7)", desc: "Coordination, communication, and governance are highly effective and balanced." },
-                    { label: "Very Good (5-6)", desc: "Cooperation mechanisms are strong with minor limitations." },
-                    { label: "Good (3-4)", desc: "Generally appropriate but insufficiently detailed." },
-                    { label: "Fair/Poor (0-2)", desc: "Cooperation mechanisms are weak or unclear." }
-                ]
-            }
+            { id: "3.1", name: "Configuration", max: 8, guide: ["Skills complementarity"], levels: [{l:"Exc", r:[7,8], d:"Outstanding complementarity & expertise."}, {l:"VG", r:[5,6], d:"Strong and balanced partnership."}, {l:"G", r:[3,4], d:"Suitable but some expertise gaps exist."}, {l:"F/P", r:[0,1,2], d:"Weak composition."}] },
+            { id: "3.2", name: "Commitment", max: 5, guide: ["Full involvement"], levels: [{l:"Exc", r:[5], d:"Strong commitment & defined roles."}, {l:"VG", r:[4], d:"Substantial commitment."}, {l:"G", r:[2,3], d:"Evident but uneven across partners."}, {l:"F/P", r:[0,1], d:"Limited evidence of engagement."}] },
+            { id: "3.3", name: "Cooperation", max: 7, guide: ["Coordination mechanisms"], levels: [{l:"Exc", r:[7], d:"Highly effective arrangements."}, {l:"VG", r:[5,6], d:"Strong mechanisms."}, {l:"G", r:[3,4], d:"Generally appropriate."}, {l:"F/P", r:[0,1,2], d:"Weak or unclear."}] }
         ]
     },
     {
         title: "4. Impact", max: 20, threshold: 10,
         items: [
-            { id: "4.1", name: "Dissemination", max: 5, 
-                levels: [
-                    { label: "Excellent (5)", desc: "Comprehensive, targeted, sustainable, and includes open-access measures." },
-                    { label: "Very Good (4)", desc: "Strategy is strong with minor limitations." },
-                    { label: "Good (2-3)", desc: "Adequate but insufficiently detailed or targeted." },
-                    { label: "Fair/Poor (0-1)", desc: "Dissemination strategy is weak or unclear." }
-                ]
-            },
-            { id: "4.2", name: "Exploitation", max: 5, 
-                levels: [
-                    { label: "Excellent (5)", desc: "Exploitation measures are highly credible and likely to generate systemic impact." },
-                    { label: "Very Good (4)", desc: "Exploitation strategy is convincing with minor weaknesses." },
-                    { label: "Good (2-3)", desc: "Generally appropriate but limited in ambition or clarity." },
-                    { label: "Fair/Poor (0-1)", desc: "Exploitation strategy is weak or insufficiently developed." }
-                ]
-            },
-            { id: "4.3", name: "Impact", max: 7, 
-                levels: [
-                    { label: "Excellent (7)", desc: "Expected impact is highly significant, measurable, and evidence-based." },
-                    { label: "Very Good (5-6)", desc: "Impact is clearly articulated and well supported." },
-                    { label: "Good (3-4)", desc: "Generally relevant but insufficiently evidenced or measured." },
-                    { label: "Fair/Poor (0-2)", desc: "Impact is vague, weakly measurable, or inadequately justified." }
-                ]
-            },
-            { id: "4.4", name: "Sustainability", max: 3, 
-                levels: [
-                    { label: "Excellent (3)", desc: "Sustainability measures are robust, realistic, and adequately resourced." },
-                    { label: "Very Good (2)", desc: "Sustainability is appropriately addressed with minor limitations." },
-                    { label: "Good/Fair (0-1)", desc: "Measures are weak or insufficiently detailed." }
-                ]
-            }
+            { id: "4.1", name: "Dissemination", max: 5, guide: ["Outreach strategy"], levels: [{l:"Exc", r:[5], d:"Comprehensive, targeted, sustainable."}, {l:"VG", r:[4], d:"Strong with minor limitations."}, {l:"G", r:[2,3], d:"Adequate but insufficiently detailed."}, {l:"F/P", r:[0,1], d:"Weak or unclear."}] },
+            { id: "4.2", name: "Exploitation", max: 5, guide: ["Systemic change potential"], levels: [{l:"Exc", r:[5], d:"Highly credible systemic impact."}, {l:"VG", r:[4], d:"Convincing with minor weaknesses."}, {l:"G", r:[2,3], d:"Generally appropriate, limited ambition."}, {l:"F/P", r:[0,1], d:"Weakly developed."}] },
+            { id: "4.3", name: "Impact", max: 7, guide: ["Target group benefits"], levels: [{l:"Exc", r:[7], d:"Highly significant and measurable."}, {l:"VG", r:[5,6], d:"Clearly articulated and supported."}, {l:"G", r:[3,4], d:"Relevant but insufficiently evidenced."}, {l:"F/P", r:[0,1,2], d:"Vague or inadequately justified."}] },
+            { id: "4.4", name: "Sustainability", max: 3, guide: ["Beyond project life"], levels: [{l:"Exc", r:[3], d:"Robust, realistic, adequately resourced."}, {l:"VG", r:[2], d:"Appropriately addressed."}, {l:"G", r:[], d:"N/A"}, {l:"F/P", r:[0,1], d:"Weak or insufficiently detailed."}] }
         ]
     }
 ];
 
+// ==========================================
+// 3. INITIALIZATION & UI BUILDER
+// ==========================================
 function init() {
     const main = document.getElementById('main-content');
     const summaryList = document.getElementById('summary-list');
+    main.innerHTML = ''; summaryList.innerHTML = '';
     
-    rubricData.forEach((section, sIdx) => {
-        const card = document.createElement('div');
-        card.className = 'section-card';
-        card.innerHTML = `<div class="section-header">${section.title} <span style="float:right" id="sec-total-${sIdx}">0 / ${section.max}</span></div>`;
-        
-        section.items.forEach((item, iIdx) => {
-            card.innerHTML += `
+    // Build Dynamic Sections
+    rubricData.forEach((sec, sIdx) => {
+        const secDiv = document.createElement('div');
+        secDiv.className = 'section-card';
+        secDiv.innerHTML = `
+            <div class="section-header">
+                <div class="section-title">${sec.title}</div>
+                <div class="section-meta">
+                    <div class="word-limit" id="limit-${sIdx}">Words: 0 / 4000</div>
+                    <div class="section-score" id="sec-total-${sIdx}">0 / ${sec.max}</div>
+                </div>
+            </div>`;
+
+        sec.items.forEach((item) => {
+            let btns = '';
+            for(let i=0; i<=item.max; i++) {
+                let cls = getScoreColorClass(i, item.levels);
+                btns += `<button class="btn-score" id="btn-${item.id.replace('.','-')}-${i}" onclick="selectScore(this, ${sIdx}, '${item.id}', ${i}, '${cls}')">${i}</button>`;
+            }
+
+            secDiv.innerHTML += `
                 <div class="sub-item">
-                    <div class="sub-top">
-                        <div class="sub-title">${item.id} ${item.name}</div>
-                        <div class="score-input-wrapper">
-                            <label>Score (Max ${item.max}):</label>
-                            <input type="number" min="0" max="${item.max}" value="0" oninput="calculate()" data-sec="${sIdx}">
-                        </div>
-                    </div>
+                    <div class="sub-title">${item.id} ${item.name}</div>
+                    
+                    <div class="score-buttons" id="btn-group-${item.id.replace('.','-')}">${btns}</div>
+                    
                     <table class="rubric-table">
+                        <tr><th>Excellent</th><th>Very Good</th><th>Good</th><th>Fair/Poor</th></tr>
                         <tr>
-                            <th width="25%">Excellent</th>
-                            <th width="25%">Very Good</th>
-                            <th width="25%">Good</th>
-                            <th width="25%">Fair/Poor</th>
-                        </tr>
-                        <tr>
-                            <td class="level-excellent"><b>${item.levels[0].label}</b><br>${item.levels[0].desc}</td>
-                            <td class="level-verygood"><b>${item.levels[1].label}</b><br>${item.levels[1].desc}</td>
-                            <td class="level-good"><b>${item.levels[2].label}</b><br>${item.levels[2].desc}</td>
-                            <td class="level-fail"><b>${item.levels[3].label}</b><br>${item.levels[3].desc}</td>
+                            <td><b>${item.levels[0].r.join(', ')} Pts</b>${item.levels[0].d}</td>
+                            <td><b>${item.levels[1].r.join(', ')} Pts</b>${item.levels[1].d}</td>
+                            <td><b>${item.levels[2].r.join(', ')} Pts</b>${item.levels[2].d}</td>
+                            <td><b>${item.levels[3].r.join(', ')} Pts</b>${item.levels[3].d}</td>
                         </tr>
                     </table>
-                </div>
-            `;
+                    
+                    <div class="guide-box"><b>Guiding Points:</b> ${item.guide.join(' • ')}</div>
+                    
+                    <textarea class="comment-area" id="comment-${item.id.replace('.','-')}" placeholder="Enter form evaluation for ${item.id}..." oninput="calculate()"></textarea>
+                    <input type="hidden" class="score-val" data-sec="${sIdx}" id="val-${item.id.replace('.','-')}" value="0">
+                </div>`;
         });
-        main.appendChild(card);
-        summaryList.innerHTML += `<div class="sum-row"><span>${section.title.split('.')[0]}. Kriter</span> <b id="sum-val-${sIdx}">0 / ${section.max}</b></div>`;
+        
+        main.appendChild(secDiv);
+        summaryList.innerHTML += `<div class="summary-row"><span>${sec.title.split('.')[0]}. Criterion Score</span> <b id="sum-${sIdx}" style="font-size:1.1rem">0 / ${sec.max}</b></div>`;
     });
-    
-    document.getElementById('date-box').innerText = new Date().toLocaleDateString('tr-TR');
+
+    // Build Overall Comments Section (Strengths, Weaknesses, etc.)
+    const overall = document.createElement('div');
+    overall.className = 'section-card';
+    overall.style.background = '#f8fafc';
+    overall.innerHTML = `
+        <div class="section-title" style="margin-bottom:20px;">Final Conclusions</div>
+        <div style="margin-bottom:20px">
+            <label style="font-weight:600; display:block; margin-bottom:8px">Evaluation Summary:</label>
+            <textarea class="comment-area" id="overall-summary" placeholder="Provide a general summary of the proposal..."></textarea>
+        </div>
+        <div style="margin-bottom:20px">
+            <label style="font-weight:600; display:block; margin-bottom:8px">Main Strengths:</label>
+            <textarea class="comment-area" id="overall-strengths" style="min-height:90px" placeholder="- Point 1&#10;- Point 2"></textarea>
+        </div>
+        <div style="margin-bottom:20px">
+            <label style="font-weight:600; display:block; margin-bottom:8px">Main Weaknesses:</label>
+            <textarea class="comment-area" id="overall-weaknesses" style="min-height:90px" placeholder="- Point 1&#10;- Point 2"></textarea>
+        </div>
+        <div style="display:flex; align-items:center; gap:15px; background:white; padding:15px; border-radius:8px; border:1px solid var(--border)">
+            <label style="font-weight:600; color:var(--primary)">Financial Shortcomings / Budget Issues?</label>
+            <select id="budget-check" style="padding:8px; border-radius:6px; border:1px solid var(--border); font-weight:bold; outline:none">
+                <option value="NO">NO - Budget is appropriate</option>
+                <option value="YES">YES - Issues identified</option>
+            </select>
+        </div>
+    `;
+    main.appendChild(overall);
+
+    // Fetch existing projects from database
+    loadProjectList();
+}
+
+// ==========================================
+// 4. CORE LOGIC & CALCULATION
+// ==========================================
+function getScoreColorClass(s, lvls) {
+    if(lvls[0].r.includes(s)) return 'excellent';
+    if(lvls[1].r.includes(s)) return 'verygood';
+    if(lvls[2].r.includes(s)) return 'good';
+    if(lvls[3].r.includes(s)) return 'fair';
+    return 'poor';
+}
+
+function selectScore(btn, sIdx, itemId, score, cls) {
+    const group = document.getElementById(`btn-group-${itemId.replace('.','-')}`);
+    group.querySelectorAll('.btn-score').forEach(b => b.className = 'btn-score');
+    btn.className = `btn-score active ${cls}`;
+    document.getElementById(`val-${itemId.replace('.','-')}`).value = score;
+    calculate();
 }
 
 function calculate() {
-    let grandTotal = 0;
+    let grand = 0;
     rubricData.forEach((sec, sIdx) => {
         let secTotal = 0;
-        document.querySelectorAll(`input[data-sec="${sIdx}"]`).forEach(input => {
-            let val = parseInt(input.value) || 0;
-            if(val > input.max) { input.value = input.max; val = input.max; }
-            secTotal += val;
+        let secWords = 0;
+        
+        sec.items.forEach(item => {
+            let valId = item.id.replace('.','-');
+            secTotal += parseInt(document.getElementById(`val-${valId}`).value) || 0;
+            
+            let txt = document.getElementById(`comment-${valId}`).value.trim();
+            secWords += txt ? txt.split(/\s+/).length : 0;
         });
+
+        // Update Section Headers & Word Limits
         document.getElementById(`sec-total-${sIdx}`).innerText = `${secTotal} / ${sec.max}`;
-        document.getElementById(`sum-val-${sIdx}`).innerText = `${secTotal} / ${sec.max}`;
+        let limitBadge = document.getElementById(`limit-${sIdx}`);
+        limitBadge.innerText = `Words: ${secWords} / 4000`;
+        limitBadge.style.color = secWords > 4000 ? 'var(--danger)' : '#64748b';
+        limitBadge.style.background = secWords > 4000 ? '#fee2e2' : '#f1f5f9';
+
+        // Update Sidebar
+        let sumText = document.getElementById(`sum-${sIdx}`);
+        sumText.innerText = `${secTotal} / ${sec.max}`;
+        sumText.style.color = secTotal >= sec.threshold ? 'var(--success)' : 'var(--danger)';
         
-        // Kriter bazlı eşik kontrolü (renklendirme)
-        document.getElementById(`sum-val-${sIdx}`).style.color = secTotal >= sec.threshold ? '#27ae60' : '#ff7675';
-        
-        grandTotal += secTotal;
+        grand += secTotal;
     });
 
-    document.getElementById('grand-total').innerText = grandTotal;
+    // Update Grand Total and Status Badge
+    document.getElementById('grand-total').innerText = grand;
     const badge = document.getElementById('status-badge');
-    if(grandTotal >= 60) {
-        badge.innerText = "PASSED";
-        badge.style.background = "#27ae60";
+    badge.innerText = grand >= 60 ? "PASSED" : "FAILED";
+    badge.style.background = grand >= 60 ? "var(--success)" : "var(--danger)";
+}
+
+// ==========================================
+// 5. DATABASE OPERATIONS (FETCH / POST)
+// ==========================================
+function loadProjectList() {
+    fetch(GOOGLE_APP_URL + "?action=getList")
+    .then(res => res.json())
+    .then(list => {
+        const sel = document.getElementById('project-selector');
+        sel.innerHTML = '<option value="NEW">-- Create New Project Form --</option>';
+        list.forEach(id => {
+            if(id) { // Boş satırları atla
+                const opt = document.createElement('option');
+                opt.value = id; opt.innerText = id; 
+                sel.appendChild(opt);
+            }
+        });
+    })
+    .catch(err => console.log("List fetch error", err));
+}
+
+function handleProjectSelection() {
+    const val = document.getElementById('project-selector').value;
+    if (val === "NEW") {
+        // Reset everything
+        document.getElementById('proj-no').value = '';
+        document.getElementById('proj-name').value = '';
+        document.getElementById('overall-summary').value = '';
+        document.getElementById('overall-strengths').value = '';
+        document.getElementById('overall-weaknesses').value = '';
+        document.getElementById('budget-check').value = 'NO';
+        
+        document.querySelectorAll('.btn-score').forEach(b => b.className = 'btn-score');
+        document.querySelectorAll('.score-val').forEach(v => v.value = '0');
+        document.querySelectorAll('.comment-area').forEach(t => t.value = '');
+        calculate();
     } else {
-        badge.innerText = "BELOW THRESHOLD";
-        badge.style.background = "#e74c3c";
+        loadProjectData(val);
     }
 }
 
+function loadProjectData(projNo) {
+    document.getElementById('loader-text').innerText = "Loading Project Data...";
+    document.getElementById('loader').style.display = "flex";
+    
+    fetch(`${GOOGLE_APP_URL}?action=load&projNo=${encodeURIComponent(projNo)}`)
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById('loader').style.display = "none";
+        
+        if(data.status === 'success') {
+            document.getElementById('proj-no').value = data.projectNumber;
+            document.getElementById('proj-name').value = data.projectName;
+            
+            // Handle overall comments
+            if(data.overall) {
+                document.getElementById('overall-summary').value = data.overall.summary || "";
+                document.getElementById('overall-strengths').value = data.overall.strengths || "";
+                document.getElementById('overall-weaknesses').value = data.overall.weaknesses || "";
+                document.getElementById('budget-check').value = data.overall.budgetCheck || "NO";
+            }
+
+            // Restore scores and comments
+            Object.keys(data.details).forEach(id => {
+                let valId = id.replace('.', '-');
+                let commentBox = document.getElementById(`comment-${valId}`);
+                if(commentBox) commentBox.value = data.details[id].comment || "";
+                
+                let btn = document.getElementById(`btn-${valId}-${data.details[id].score}`);
+                if(btn) btn.click(); // This will trigger calculate() automatically
+            });
+        }
+    })
+    .catch(err => {
+        document.getElementById('loader').style.display = "none";
+        alert("Error loading project. Check network or Database URL.");
+    });
+}
+
+function saveToSheets() {
+    const projNo = document.getElementById('proj-no').value.trim();
+    if(!projNo) {
+        alert("Project ID is required to save to database!");
+        document.getElementById('proj-no').focus();
+        return;
+    }
+
+    document.getElementById('loader-text').innerText = "Saving to Database...";
+    document.getElementById('loader').style.display = "flex";
+    
+    let payload = {
+        projectNumber: projNo, 
+        projectName: document.getElementById('proj-name').value.trim(),
+        grandTotal: document.getElementById('grand-total').innerText,
+        appStatus: document.getElementById('status-badge').innerText,
+        secTotals: {}, 
+        details: {},
+        overall: {
+            summary: document.getElementById('overall-summary').value,
+            strengths: document.getElementById('overall-strengths').value,
+            weaknesses: document.getElementById('overall-weaknesses').value,
+            budgetCheck: document.getElementById('budget-check').value
+        }
+    };
+
+    rubricData.forEach((sec, sIdx) => {
+        let secScore = 0;
+        sec.items.forEach(item => {
+            let valId = item.id.replace('.','-');
+            let score = parseInt(document.getElementById(`val-${valId}`).value) || 0;
+            secScore += score;
+            payload.details[item.id] = { 
+                score: score, 
+                comment: document.getElementById(`comment-${valId}`).value 
+            };
+        });
+        payload.secTotals[`sec${sIdx}`] = secScore;
+    });
+
+    // POST isteğinde CORS hatasını aşmak için Content-Type text/plain yapıldı.
+    fetch(GOOGLE_APP_URL, { 
+        method: "POST", 
+        body: JSON.stringify(payload),
+        headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+        }
+    })
+    .then(r => r.json())
+    .then(res => {
+        document.getElementById('loader').style.display = "none";
+        if(res.result === "success") {
+            alert("Success! Record securely saved to the database.");
+            loadProjectList(); // Yeni kaydı dropdown'a eklemek için listeyi yenile
+            
+            // Menüyü mevcut projeye sabitle
+            setTimeout(() => { document.getElementById('project-selector').value = projNo; }, 500);
+        } else {
+            alert("Database Error: " + res.error);
+        }
+    })
+    .catch(() => {
+        document.getElementById('loader').style.display = "none";
+        alert("Network Error: Could not reach the database.");
+    });
+}
+
+// Start application
 window.onload = init;
 </script>
-
 </body>
 </html>
