@@ -13,6 +13,7 @@
         .nav-group { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 300px; }
         .nav-panel select, .nav-panel input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; flex: 1; outline: none; }
         .nav-panel select { background: #f8fafc; font-weight: 600; cursor: pointer; }
+        .nav-panel select:focus, .nav-panel input:focus { border-color: var(--accent); }
 
         .layout { display: grid; grid-template-columns: 1fr 380px; gap: 30px; align-items: start; }
         
@@ -28,6 +29,7 @@
 
         .score-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
         .btn-score { width: 42px; height: 42px; border-radius: 8px; border: 1px solid var(--border); background: white; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; color: #475569; }
+        .btn-score:hover { border-color: var(--accent); color: var(--accent); }
         .btn-score.active.excellent { background: var(--success); color: white; border-color: var(--success); }
         .btn-score.active.verygood { background: var(--accent); color: white; border-color: var(--accent); }
         .btn-score.active.good { background: var(--warning); color: white; border-color: var(--warning); }
@@ -37,9 +39,11 @@
         .rubric-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.85rem; }
         .rubric-table th, .rubric-table td { border: 1px solid var(--border); padding: 10px; text-align: left; vertical-align: top; width: 25%; }
         .rubric-table th { background: #f8fafc; color: #475569; }
+        .rubric-table td b { display: block; margin-bottom: 4px; font-size: 0.9rem; }
         
         .guide-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 15px; margin-bottom: 15px; font-size: 0.9rem; color: #0369a1; }
         .guide-box ul { margin: 5px 0 0 0; padding-left: 20px; }
+        .guide-box li { margin-bottom: 6px; }
         
         .vocab-container { background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin-top: 15px; display: none; }
         .vocab-title { font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
@@ -49,29 +53,35 @@
         .vocab-tag.neg { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
 
         .comment-area { width: 100%; box-sizing: border-box; padding: 15px; border: 1px solid var(--border); border-radius: 8px; min-height: 120px; font-family: inherit; font-size: 0.95rem; line-height: 1.5; resize: vertical; margin-top: 15px; }
-        
-        /* Görüntü Yükleme Alanı */
+        .comment-area:focus { outline: none; border-color: var(--accent); }
+
+        /* Multiple Image Upload Styles */
         .evidence-box { background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 8px; padding: 15px; margin-top: 15px; }
         .evidence-box label { font-size: 0.85rem; font-weight: 600; color: var(--primary); display: block; margin-bottom: 8px; }
-        .preview-container { margin-top: 10px; display: none; align-items: flex-end; gap: 10px; }
-        .preview-container img { width: 100px; height: 75px; object-fit: cover; border-radius: 6px; border: 2px solid var(--border); cursor: zoom-in; }
-        .btn-remove-img { background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
+        .preview-container { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
+        .img-wrapper { position: relative; width: 100px; height: 75px; }
+        .img-wrapper img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 2px solid var(--border); cursor: zoom-in; transition: 0.2s; }
+        .img-wrapper img:hover { border-color: var(--accent); }
+        .btn-remove-img { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-        /* Fullscreen Image Modal */
         #image-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; padding: 40px; }
         #image-modal img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .modal-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 2rem; cursor: pointer; font-weight: bold; background: none; border: none; }
+        .modal-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 2.5rem; cursor: pointer; font-weight: bold; background: none; border: none; }
 
         .hybrid-group { background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border); flex: 1; min-width: 300px; }
         .hybrid-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.95rem; font-weight: 500; }
-        .hybrid-item select { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); font-weight: bold; cursor: pointer; }
+        .hybrid-item select { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); font-weight: bold; cursor: pointer; outline: none; }
 
         .sidebar { position: sticky; top: 20px; }
-        .score-panel { background: var(--primary); color: white; padding: 30px; border-radius: 16px; text-align: center; }
+        .score-panel { background: var(--primary); color: white; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .grand-total { font-size: 5rem; font-weight: 900; margin: 10px 0; line-height: 1; }
         .status-badge { padding: 8px 24px; border-radius: 20px; font-weight: bold; font-size: 1rem; display: inline-block; margin-bottom: 20px; }
+        
+        .summary-list { text-align: left; margin-top: 20px; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
         .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+        
         .btn-save { width: 100%; background: var(--success); color: white; border: none; padding: 18px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 1.1rem; margin-top: 20px; transition: 0.2s; }
+        .btn-save:hover { background: #16a34a; transform: translateY(-2px); }
 
         #loader { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); color: white; align-items: center; justify-content: center; z-index: 1000; font-size: 1.5rem; font-weight: bold; flex-direction: column; gap: 15px; }
         .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
@@ -108,12 +118,15 @@
 
     <div class="layout">
         <main id="main-content"></main>
+        
         <aside class="sidebar">
             <div class="score-panel">
                 <h3 style="margin-top:0; color:#cbd5e1; font-size:1rem; text-transform:uppercase; letter-spacing:1px;">Total Score</h3>
                 <div class="grand-total" id="grand-total">0</div>
                 <div id="status-badge" class="status-badge" style="background: var(--danger);">FAILED</div>
-                <div id="summary-list" style="text-align: left; margin-top: 20px; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;"></div>
+                
+                <div id="summary-list" class="summary-list"></div>
+                
                 <button class="btn-save" onclick="saveToSheets()">SAVE & COMMIT TO DATABASE</button>
             </div>
         </aside>
@@ -122,9 +135,9 @@
 
 <script>
 // ==========================================
-// 1. DATABASE URL
+// 1. DATABASE URL (LÜTFEN BURAYI GÜNCELLEYİN)
 // ==========================================
-const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbwjdWpcjxnFM2vtIjUwre4fOLOxuA51uu7Fi9ohusWWD9DI1eN6Ie6VdwZJb8nKepZL5Q/exec"; 
+const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbymU1P-Pm_VO2oOnee5z689xdNOaacPfIIw5rMWq8gG49Ct-iKLsl5CsxDG_J9ZZ9rfyw/exec"; 
 
 const positiveVocab = ["extremely relevant", "credible", "very clear", "precisely specified", "realistic", "very innovative", "extremely well suited", "timely", "convincing", "comprehensive", "high quality", "justified", "very well identified", "strong", "highly effective", "thoughtful", "very promising", "evidence", "well-formulated", "carefully prepared", "very professionally prepared", "fully in line", "very profound", "sound", "very convincingly integrated", "clearly articulated", "coherent", "well balanced", "very plausible", "ambitious", "clear advances", "well above average"];
 const negativeVocab = ["insufficient", "minimal", "fails to describe", "unacceptable", "inadequate", "very generic", "not evident", "unfocused", "very weak", "bad", "does not meet the requirements", "inappropriate", "limited", "unclear", "not sound enough", "not specified", "no significant impact", "unjustified", "overestimated"];
@@ -168,10 +181,20 @@ const rubricData = [
     }
 ];
 
+let currentNewImages = {}; // Geçici çoklu resim deposu
+let loadedImageUrls = {};  // Database'den dönen URL deposu
+
 function init() {
     const main = document.getElementById('main-content');
     const summaryList = document.getElementById('summary-list');
     main.innerHTML = ''; summaryList.innerHTML = '';
+
+    const criterionDisplayNames = [
+        "Relevance",
+        "Quality of Project Design",
+        "Quality of Partnership",
+        "Impact"
+    ];
     
     rubricData.forEach((sec, sIdx) => {
         const secDiv = document.createElement('div');
@@ -186,17 +209,18 @@ function init() {
             </div>`;
 
         sec.items.forEach((item) => {
+            const cleanId = item.id.replace('.','-');
             let btns = '';
             for(let i=0; i<=item.max; i++) {
                 let cls = getScoreColorClass(i, item.levels);
-                btns += `<button class="btn-score" id="btn-${item.id.replace('.','-')}-${i}" onclick="selectScore(this, ${sIdx}, '${item.id}', ${i}, '${cls}')">${i}</button>`;
+                btns += `<button class="btn-score" id="btn-${cleanId}-${i}" onclick="selectScore(this, ${sIdx}, '${item.id}', ${i}, '${cls}')">${i}</button>`;
             }
 
             secDiv.innerHTML += `
                 <div class="sub-item">
                     <div class="sub-title">${item.id} ${item.name}</div>
                     
-                    <div class="score-buttons" id="btn-group-${item.id.replace('.','-')}">${btns}</div>
+                    <div class="score-buttons" id="btn-group-${cleanId}">${btns}</div>
                     
                     <table class="rubric-table">
                         <tr><th>Excellent</th><th>Very Good</th><th>Good</th><th>Fair/Poor</th></tr>
@@ -213,30 +237,25 @@ function init() {
                         <ul>${item.guide.map(g => `<li>${g}</li>`).join('')}</ul>
                     </div>
                     
-                    <div class="vocab-container" id="vocab-container-${item.id.replace('.','-')}">
+                    <div class="vocab-container" id="vocab-container-${cleanId}">
                         <div class="vocab-title">Suggested Vocabulary for your score:</div>
-                        <div class="vocab-list" id="vocab-list-${item.id.replace('.','-')}"></div>
+                        <div class="vocab-list" id="vocab-list-${cleanId}"></div>
                     </div>
                     
-                    <textarea class="comment-area" id="comment-${item.id.replace('.','-')}" placeholder="Enter form evaluation for ${item.id}..." oninput="calculate()"></textarea>
+                    <textarea class="comment-area" id="comment-${cleanId}" placeholder="Enter form evaluation for ${item.id}..." oninput="calculate()"></textarea>
                     
                     <div class="evidence-box">
-                        <label>Upload Evidence / Screenshot (Optional):</label>
-                        <input type="file" id="file-${item.id.replace('.','-')}" accept="image/*" onchange="handleImageUpload(this, '${item.id}')">
-                        <div class="preview-container" id="preview-container-${item.id.replace('.','-')}">
-                            <img id="preview-${item.id.replace('.','-')}" src="" onclick="openModal(this.src)" title="Click to enlarge">
-                            <button type="button" class="btn-remove-img" onclick="removeImage('${item.id}')">Remove</button>
-                        </div>
-                        <input type="hidden" id="img-data-${item.id.replace('.','-')}" value="">
+                        <label>Upload Evidence / Screenshots (Multiple Allowed):</label>
+                        <input type="file" multiple accept="image/*" onchange="handleMultipleImageUpload(this, '${item.id}')">
+                        <div class="preview-container" id="preview-container-${cleanId}"></div>
                     </div>
 
-                    <input type="hidden" class="score-val" data-sec="${sIdx}" id="val-${item.id.replace('.','-')}" value="0">
+                    <input type="hidden" class="score-val" data-sec="${sIdx}" id="val-${cleanId}" value="0">
                 </div>`;
         });
         
         main.appendChild(secDiv);
-       const names = ["1. Relevance", "2. Quality of Project Design", "3. Quality of Partnership", "Impact"];
-summaryList.innerHTML += `<div class="summary-row"><span>${sIdx + 1}. ${names[sIdx]}</span> <b id="sum-${sIdx}" style="font-size:1.1rem">0 / ${sec.max}</b></div>`;
+        summaryList.innerHTML += `<div class="summary-row"><span>${sIdx + 1}. ${criterionDisplayNames[sIdx]}</span> <b id="sum-${sIdx}" style="font-size:1.1rem">0 / ${sec.max}</b></div>`;
     });
 
     const overall = document.createElement('div');
@@ -249,10 +268,12 @@ summaryList.innerHTML += `<div class="summary-row"><span>${sIdx + 1}. ${names[sI
             <label style="font-weight:600; display:block; margin-bottom:8px">Evaluation Summary (Conclusion): <br><small style="color:#64748b; font-weight:normal">(Approximately 3-5 lines + summarize assessment conclusions)</small></label>
             <textarea class="comment-area" id="overall-summary" placeholder="Executive Summary..."></textarea>
         </div>
+        
         <div style="margin-bottom:20px">
             <label style="font-weight:600; display:block; margin-bottom:8px">Main Strengths: <br><small style="color:#64748b; font-weight:normal">(Approximately 3-5 bullet points)</small></label>
             <textarea class="comment-area" id="overall-strengths" style="min-height:90px" placeholder="- Point 1&#10;- Point 2"></textarea>
         </div>
+        
         <div style="margin-bottom:20px">
             <label style="font-weight:600; display:block; margin-bottom:8px">Main Weaknesses: <br><small style="color:#64748b; font-weight:normal">(Approximately 3-5 bullet points)</small></label>
             <textarea class="comment-area" id="overall-weaknesses" style="min-height:90px" placeholder="- Point 1&#10;- Point 2"></textarea>
@@ -260,31 +281,39 @@ summaryList.innerHTML += `<div class="summary-row"><span>${sIdx + 1}. ${names[sI
 
         <div style="margin-top:40px; border-top:2px solid var(--border); padding-top:25px;">
             <h3 style="margin-top:0; color:var(--primary); font-size:1.3rem;">Feedback to the Evaluation Committee</h3>
+            
             <div style="display:flex; gap:25px; flex-wrap:wrap; margin-bottom:25px;">
                 <div class="hybrid-group">
                     <h4 style="margin-top:0; color:var(--accent); border-bottom:1px solid var(--border); padding-bottom:8px;">1. Eligibility Checks</h4>
+                    
                     <div class="hybrid-item"><span>Relevant type of organisation as Coordinator?</span><select id="chk-coord"><option value="YES">YES</option><option value="NO">NO</option></select></div>
                     <div class="hybrid-item"><span>Partners comply with composition rules?</span><select id="chk-partners"><option value="YES">YES</option><option value="NO">NO</option></select></div>
                     <div class="hybrid-item"><span>Activities take place in participating countries?</span><select id="chk-activities"><option value="YES">YES</option><option value="NO">NO</option></select></div>
-                    <label style="font-size:0.85rem; color:#64748b; margin-top:15px; display:block;"><b>Qualitative Notes:</b></label>
+                    
+                    <label style="font-size:0.85rem; color:#64748b; margin-top:15px; display:block;"><b>Qualitative Notes (If any issues):</b></label>
                     <textarea class="comment-area" id="chk-eligNotes" style="min-height:60px; margin-top:5px; padding:10px;" placeholder="Add eligibility comments..."></textarea>
                 </div>
+
                 <div class="hybrid-group">
                     <h4 style="margin-top:0; color:var(--accent); border-bottom:1px solid var(--border); padding-bottom:8px;">2. Completeness & Funding Rules</h4>
+                    
                     <label style="font-size:0.9rem; font-weight:600; display:block; margin-bottom:5px;">Completeness Checks:</label>
                     <label style="font-size:0.8rem; color:#64748b; display:block; margin-bottom:10px;">(Please add if the proposal is over 40 pages, uses a different template, or if sections are missing)</label>
                     <textarea class="comment-area" id="chk-completenessText" style="min-height:70px; margin-bottom:20px; padding:10px;" placeholder="Write completeness issues here..."></textarea>
+                    
                     <label style="font-size:0.9rem; font-weight:600; display:block; margin-bottom:10px;">Funding Rules:</label>
                     <div class="hybrid-item"><span>200 EUR per participant rule respected?</span><select id="chk-eur200"><option value="YES">YES</option><option value="NO">NO</option></select></div>
                     <div class="hybrid-item"><span>95% co-financing rate applied?</span><select id="chk-perc95"><option value="YES">YES</option><option value="NO">NO</option></select></div>
+                    
                     <label style="font-size:0.85rem; color:#64748b; margin-top:10px; display:block;"><b>Funding Notes:</b></label>
                     <textarea class="comment-area" id="chk-fundingNotes" style="min-height:50px; margin-top:5px; padding:10px;" placeholder="Additional funding notes..."></textarea>
                 </div>
             </div>
+
             <div style="display:flex; align-items:center; justify-content:space-between; background:white; padding:20px; border-radius:12px; border:2px solid var(--border)">
                 <div>
                     <div style="font-weight:800; color:var(--primary); font-size:1.1rem;">Financial Shortcomings / Budget Re-shuffle Needed?</div>
-                    <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">(Select YES if the budget requires adjustments)</div>
+                    <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">(Select YES if the budget requires adjustments based on your evaluation)</div>
                 </div>
                 <select id="budget-check" style="padding:10px 20px; border-radius:8px; border:2px solid var(--border); font-weight:800; outline:none; cursor:pointer; font-size:1rem;">
                     <option value="NO">NO - Budget is reasonable</option>
@@ -298,51 +327,70 @@ summaryList.innerHTML += `<div class="summary-row"><span>${sIdx + 1}. ${names[sI
     loadProjectList();
 }
 
-// Görsel Sıkıştırma (Performans & Hücre Limiti İçin)
-function handleImageUpload(input, itemId) {
-    if (!input.files || !input.files[0]) return;
-    const file = input.files[0];
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 1000;
-            const MAX_HEIGHT = 1000;
-            let width = img.width;
-            let height = img.height;
+// Görsel Sıkıştırma ve Çoklu Yükleme Mantığı
+function handleMultipleImageUpload(input, itemId) {
+    const cleanId = itemId.replace('.', '-');
+    if (!currentNewImages[cleanId]) currentNewImages[cleanId] = [];
 
-            if (width > height) {
+    Array.from(input.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 1000;
+                let width = img.width;
+                let height = img.height;
+
                 if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-            } else {
-                if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.6); 
+                currentNewImages[cleanId].push(dataUrl);
+                renderPreviews(cleanId);
             }
-
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            // Veriyi Base64'e çevir
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.6); 
-            
-            const cleanId = itemId.replace('.', '-');
-            document.getElementById(`preview-${cleanId}`).src = dataUrl;
-            document.getElementById(`preview-container-${cleanId}`).style.display = 'flex';
-            document.getElementById(`img-data-${cleanId}`).value = dataUrl;
+            img.src = e.target.result;
         }
-        img.src = e.target.result;
-    }
-    reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+    });
 }
 
-function removeImage(itemId) {
-    const cleanId = itemId.replace('.', '-');
-    document.getElementById(`preview-${cleanId}`).src = '';
-    document.getElementById(`preview-container-${cleanId}`).style.display = 'none';
-    document.getElementById(`img-data-${cleanId}`).value = '';
-    document.getElementById(`file-${cleanId}`).value = '';
+function renderPreviews(cleanId) {
+    const container = document.getElementById(`preview-container-${cleanId}`);
+    container.innerHTML = '';
+    
+    // Veritabanından Gelen Eski Resimler Varsa Render Et
+    if (loadedImageUrls[cleanId]) {
+        loadedImageUrls[cleanId].forEach((url, idx) => {
+            const wrap = document.createElement('div');
+            wrap.className = 'img-wrapper';
+            wrap.innerHTML = `
+                <img src="${url}" onclick="openModal('${url}')" title="Click to enlarge">
+                <div style="position:absolute; bottom:0; background:rgba(0,0,0,0.6); color:white; font-size:10px; padding:2px 4px; border-radius:4px; width:100%; box-sizing:border-box; text-align:center;">Saved</div>
+            `;
+            container.appendChild(wrap);
+        });
+    }
+
+    // Yeni Eklenen (Henüz Kaydedilmemiş) Resimler
+    if (currentNewImages[cleanId]) {
+        currentNewImages[cleanId].forEach((src, idx) => {
+            const wrap = document.createElement('div');
+            wrap.className = 'img-wrapper';
+            wrap.innerHTML = `
+                <img src="${src}" onclick="openModal('${src}')" title="Click to enlarge">
+                <button type="button" class="btn-remove-img" onclick="removeNewImage('${cleanId}', ${idx})">X</button>
+            `;
+            container.appendChild(wrap);
+        });
+    }
+}
+
+function removeNewImage(cleanId, idx) {
+    currentNewImages[cleanId].splice(idx, 1);
+    renderPreviews(cleanId);
 }
 
 function openModal(src) {
@@ -371,8 +419,8 @@ function selectScore(btn, sIdx, itemId, score, cls) {
     
     let vocabContainer = document.getElementById(`vocab-container-${cleanId}`);
     let vocabList = document.getElementById(`vocab-list-${cleanId}`);
-    vocabContainer.style.display = 'block';
     
+    vocabContainer.style.display = 'block';
     if(cls === 'excellent' || cls === 'verygood' || cls === 'good') {
         vocabList.innerHTML = positiveVocab.map(w => `<span class="vocab-tag pos">${w}</span>`).join('');
     } else {
@@ -387,6 +435,7 @@ function calculate() {
     rubricData.forEach((sec, sIdx) => {
         let secTotal = 0;
         let secWords = 0;
+        
         sec.items.forEach(item => {
             let valId = item.id.replace('.','-');
             secTotal += parseInt(document.getElementById(`val-${valId}`).value) || 0;
@@ -435,14 +484,17 @@ function handleProjectSelection() {
     if (val === "NEW") {
         document.getElementById('proj-no').value = '';
         document.getElementById('proj-name').value = '';
+        
         document.getElementById('overall-summary').value = '';
         document.getElementById('overall-strengths').value = '';
         document.getElementById('overall-weaknesses').value = '';
         document.getElementById('budget-check').value = 'NO';
+        
         document.getElementById('chk-coord').value = 'YES';
         document.getElementById('chk-partners').value = 'YES';
         document.getElementById('chk-activities').value = 'YES';
         document.getElementById('chk-eligNotes').value = '';
+        
         document.getElementById('chk-completenessText').value = '';
         document.getElementById('chk-eur200').value = 'YES';
         document.getElementById('chk-perc95').value = 'YES';
@@ -453,8 +505,10 @@ function handleProjectSelection() {
         document.querySelectorAll('.comment-area').forEach(t => t.value = '');
         document.querySelectorAll('.vocab-container').forEach(c => c.style.display = 'none');
         
-        // Temizle images
-        rubricData.forEach(sec => { sec.items.forEach(item => removeImage(item.id)); });
+        currentNewImages = {};
+        loadedImageUrls = {};
+        document.querySelectorAll('.preview-container').forEach(c => c.innerHTML = '');
+        
         calculate();
     } else {
         loadProjectData(val);
@@ -469,6 +523,7 @@ function loadProjectData(projNo) {
     .then(res => res.json())
     .then(data => {
         document.getElementById('loader').style.display = "none";
+        
         if(data.status === 'success') {
             document.getElementById('proj-no').value = data.projectNumber;
             document.getElementById('proj-name').value = data.projectName;
@@ -491,6 +546,9 @@ function loadProjectData(projNo) {
                 }
             }
 
+            currentNewImages = {}; // Reset pending images
+            loadedImageUrls = {};  // Reset fetched images
+
             Object.keys(data.details).forEach(id => {
                 let valId = id.replace('.', '-');
                 let commentBox = document.getElementById(`comment-${valId}`);
@@ -499,14 +557,11 @@ function loadProjectData(projNo) {
                 let btn = document.getElementById(`btn-${valId}-${data.details[id].score}`);
                 if(btn) btn.click();
 
-                // Görsel Yüklemesi Varsa
-                if(data.details[id].imageUrl) {
-                    document.getElementById(`preview-${valId}`).src = data.details[id].imageUrl;
-                    document.getElementById(`preview-container-${valId}`).style.display = 'flex';
-                    document.getElementById(`img-data-${valId}`).value = data.details[id].imageUrl;
-                } else {
-                    removeImage(id);
+                // Görselleri Veritabanından (JSON içindeki array) Yükle
+                if(data.details[id].imageUrls && Array.isArray(data.details[id].imageUrls)) {
+                    loadedImageUrls[valId] = data.details[id].imageUrls;
                 }
+                renderPreviews(valId);
             });
         }
     })
@@ -559,18 +614,19 @@ function saveToSheets() {
             let score = parseInt(document.getElementById(`val-${valId}`).value) || 0;
             secScore += score;
             
-            let imgData = document.getElementById(`img-data-${valId}`).value;
             payload.details[item.id] = { 
                 score: score, 
                 comment: document.getElementById(`comment-${valId}`).value 
             };
             
-            // Eğer yeni bir görsel (Base64) yüklendiyse pakete ekle
-            if (imgData && imgData.startsWith('data:image')) {
-                payload.details[item.id].image = imgData;
-            } else if (imgData && imgData.startsWith('http')) {
-                // Önceden yüklenmiş Drive URL'si ise URL olarak gönder
-                payload.details[item.id].imageUrl = imgData;
+            // Eğer yeni resimler seçildiyse pakete ekle (Code.gs işleyecek)
+            if (currentNewImages[valId] && currentNewImages[valId].length > 0) {
+                payload.details[item.id].newImages = currentNewImages[valId];
+            }
+            
+            // Mevcut database URL'leri varsa onları koru
+            if (loadedImageUrls[valId] && loadedImageUrls[valId].length > 0) {
+                payload.details[item.id].imageUrls = loadedImageUrls[valId];
             }
         });
         payload.secTotals[`sec${sIdx}`] = secScore;
@@ -587,6 +643,7 @@ function saveToSheets() {
         if(res.result === "success") {
             alert("Success! Record securely saved to the database.");
             loadProjectList(); 
+            // Seçili projeyi yükleyerek kaydedilen resimlerin Drive URL versiyonlarını ekrana getir
             setTimeout(() => { document.getElementById('project-selector').value = projNo; handleProjectSelection(); }, 500);
         } else {
             alert("Database Error: " + res.error);
