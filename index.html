@@ -235,7 +235,8 @@ function init() {
         });
         
         main.appendChild(secDiv);
-        summaryList.innerHTML += `<div class="summary-row"><span>${sec.title.split('.')[0]}. Criterion Score</span> <b id="sum-${sIdx}" style="font-size:1.1rem">0 / ${sec.max}</b></div>`;
+       const names = ["1. Relevance", "2. Quality of Project Design", "3. Quality of Partnership", "Impact"];
+summaryList.innerHTML += `<div class="summary-row"><span>${sIdx + 1}. ${names[sIdx]}</span> <b id="sum-${sIdx}" style="font-size:1.1rem">0 / ${sec.max}</b></div>`;
     });
 
     const overall = document.createElement('div');
