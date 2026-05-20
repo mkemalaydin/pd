@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,38 @@
         :root { --bg: #f1f5f9; --primary: #1e293b; --accent: #3b82f6; --success: #22c55e; --danger: #ef4444; --warning: #f59e0b; --border: #cbd5e1; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 20px; line-height: 1.6; }
         .container { max-width: 1400px; margin: 0 auto; }
+        
+        @media print {
+            body { background: white; padding: 0; margin: 0; }
+            .container { max-width: 100%; margin: 0; padding: 0; }
+            .nav-panel { display: none !important; }
+            .layout { display: block !important; }
+            .sidebar { display: none !important; }
+            .section-card { page-break-inside: avoid; break-inside: avoid; margin: 0; }
+            .sub-item { page-break-inside: avoid; break-inside: avoid; }
+            textarea { word-wrap: break-word; white-space: pre-wrap; }
+            .btn-save, .btn-score { display: none !important; }
+        }
+        
+        .pdf-report { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; }
+        .pdf-header { background: #1e293b; color: white; padding: 30px; text-align: center; border-bottom: 3px solid #3b82f6; }
+        .pdf-header h1 { margin: 0; font-size: 28px; font-weight: bold; }
+        .pdf-header p { margin: 8px 0 0 0; font-size: 12px; opacity: 0.9; }
+        .pdf-meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; padding: 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        .pdf-meta-item { text-align: center; }
+        .pdf-meta-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .pdf-meta-value { font-size: 18px; font-weight: bold; color: #1e293b; margin-top: 4px; }
+        .pdf-section { margin-bottom: 30px; }
+        .pdf-section-title { font-size: 16px; font-weight: bold; color: white; background: #1e293b; padding: 12px 16px; margin-bottom: 15px; border-left: 4px solid #3b82f6; }
+        .pdf-item { border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin-bottom: 12px; background: white; page-break-inside: avoid; }
+        .pdf-item-header { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 10px; }
+        .pdf-item-name { font-weight: 600; font-size: 12px; color: #1e293b; }
+        .pdf-item-score { text-align: right; font-weight: bold; font-size: 14px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 4px; display: inline-block; float: right; }
+        .pdf-item-comment { font-size: 11px; color: #475569; line-height: 1.5; margin-top: 8px; white-space: pre-wrap; word-wrap: break-word; padding: 10px; background: #f8fafc; border-radius: 4px; }
+        .pdf-footer { text-align: center; padding: 20px; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; margin-top: 30px; }
+        .pdf-overall { background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 6px; padding: 15px; margin-top: 20px; }
+        .pdf-overall-title { font-weight: bold; color: #0369a1; margin-bottom: 8px; font-size: 12px; }
+        .pdf-overall-text { font-size: 11px; color: #0c4a6e; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; }
         
         .nav-panel { background: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 20px; border-top: 4px solid var(--accent); flex-wrap: wrap; }
         .nav-group { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 300px; }
@@ -128,6 +161,9 @@
                 <div id="summary-list" class="summary-list"></div>
                 
                 <button class="btn-save" onclick="saveToSheets()">SAVE & COMMIT TO DATABASE</button>
+                <button class="btn-save" style="background:#2563eb; margin-top:10px;" onclick="exportPDFProfessional()">
+    📄 EXPORT PDF REPORT
+</button>
             </div>
         </aside>
     </div>
@@ -139,8 +175,43 @@
 // ==========================================
 const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbwXV_ftQaSCYDSJuMkfaVO08Akp5zilf-pjayXg0oF0ockJAAbKdoxIvaoJamb4PyrjGw/exec"; 
 
-const positiveVocab = ["extremely relevant", "credible", "very clear", "precisely specified", "realistic", "very innovative", "extremely well suited", "timely", "convincing", "comprehensive", "high quality", "justified", "very well identified", "strong", "highly effective", "thoughtful", "very promising", "evidence", "well-formulated", "carefully prepared", "very professionally prepared", "fully in line", "very profound", "sound", "very convincingly integrated", "clearly articulated", "coherent", "well balanced", "very plausible", "ambitious", "clear advances", "well above average"];
-const negativeVocab = ["insufficient", "minimal", "fails to describe", "unacceptable", "inadequate", "very generic", "not evident", "unfocused", "very weak", "bad", "does not meet the requirements", "inappropriate", "limited", "unclear", "not sound enough", "not specified", "no significant impact", "unjustified", "overestimated"];
+// Level-Specific Vocabulary
+const vocabularyByLevel = {
+    excellent: [
+        "exceptional", "outstanding", "exemplary", "superior", 
+        "highly credible", "comprehensive", "ambitious", "innovative",
+        "clearly defined", "well-articulated", "convincing evidence",
+        "extremely relevant", "very clear", "precisely specified",
+        "extremely well suited", "highly effective", "very profound",
+        "clear advances", "well above average"
+    ],
+    verygood: [
+        "strong", "well-articulated", "coherent", "sound",
+        "appropriate", "relevant", "realistic", "justified",
+        "clearly identified", "good quality", "thoughtful",
+        "credible", "convincing", "well-formulated",
+        "very well identified", "strong foundation", "carefully prepared"
+    ],
+    good: [
+        "adequate", "acceptable", "reasonable", "appropriate",
+        "general coherence", "some clarity", "mostly justified",
+        "identified but limited", "uneven detail", "adequate alignment",
+        "evident", "suitable", "generally adequate", "sufficient"
+    ],
+    fair: [
+        "partial", "limited", "incomplete", "somewhat unclear",
+        "insufficient detail", "generic", "weak justification",
+        "unclear approach", "minimal evidence", "unfocused",
+        "not well specified", "needs improvement", "inadequate support"
+    ],
+    poor: [
+        "insufficient", "minimal", "fails to describe", "unacceptable",
+        "inadequate", "not sound", "weak", "unclear",
+        "not specified", "overestimated", "unjustified",
+        "very weak", "does not meet requirements", "no significant impact",
+        "inappropriate", "limited clarity", "not evident"
+    ]
+};
 
 const rubricData = [
     {
@@ -213,7 +284,7 @@ function init() {
             let btns = '';
             for(let i=0; i<=item.max; i++) {
                 let cls = getScoreColorClass(i, item.levels);
-                btns += `<button class="btn-score" id="btn-${cleanId}-${i}" onclick="selectScore(this, ${sIdx}, '${item.id}', ${i}, '${cls}')">${i}</button>`;
+                btns += `<button class="btn-score" id="btn-${cleanId}-${i}" onclick="selectScore(this, ${sIdx}, '${item.id}', ${i})">${i}</button>`;
             }
 
             secDiv.innerHTML += `
@@ -410,10 +481,16 @@ function getScoreColorClass(s, lvls) {
     return 'poor';
 }
 
-function selectScore(btn, sIdx, itemId, score, cls) {
+function selectScore(btn, sIdx, itemId, score) {
     let cleanId = itemId.replace('.', '-');
     const group = document.getElementById(`btn-group-${cleanId}`);
     group.querySelectorAll('.btn-score').forEach(b => b.className = 'btn-score');
+    
+    // Find item and its level for this score
+    const item = rubricData[sIdx].items.find(it => it.id === itemId);
+    const level = item.levels.find(lvl => lvl.r.includes(score));
+    const cls = getScoreColorClass(score, item.levels);
+    
     btn.className = `btn-score active ${cls}`;
     document.getElementById(`val-${cleanId}`).value = score;
     
@@ -421,11 +498,20 @@ function selectScore(btn, sIdx, itemId, score, cls) {
     let vocabList = document.getElementById(`vocab-list-${cleanId}`);
     
     vocabContainer.style.display = 'block';
-    if(cls === 'excellent' || cls === 'verygood' || cls === 'good') {
-        vocabList.innerHTML = positiveVocab.map(w => `<span class="vocab-tag pos">${w}</span>`).join('');
-    } else {
-        vocabList.innerHTML = negativeVocab.map(w => `<span class="vocab-tag neg">${w}</span>`).join('');
-    }
+    
+    // Map level label to vocabulary key
+    const levelMap = {
+        "Exc": "excellent",
+        "VG": "verygood",
+        "G": "good",
+        "F": "fair",
+        "P": "poor"
+    };
+    const vocabKey = levelMap[level.l] || "fair";
+    const vocab = vocabularyByLevel[vocabKey] || [];
+    const isPositive = ['excellent', 'verygood', 'good'].includes(vocabKey);
+    
+    vocabList.innerHTML = vocab.map(w => `<span class="vocab-tag ${isPositive ? 'pos' : 'neg'}">${w}</span>`).join('');
 
     calculate();
 }
@@ -434,20 +520,20 @@ function calculate() {
     let grand = 0;
     rubricData.forEach((sec, sIdx) => {
         let secTotal = 0;
-        let secWords = 0;
+        let secChars = 0;
         
         sec.items.forEach(item => {
             let valId = item.id.replace('.','-');
             secTotal += parseInt(document.getElementById(`val-${valId}`).value) || 0;
             let txt = document.getElementById(`comment-${valId}`).value.trim();
-            secWords += txt ? txt.split(/\s+/).length : 0;
+            secChars += txt ? txt.length : 0;
         });
 
         document.getElementById(`sec-total-${sIdx}`).innerText = `${secTotal} / ${sec.max}`;
         let limitBadge = document.getElementById(`limit-${sIdx}`);
-        limitBadge.innerText = `Words: ${secWords} / 4000`;
-        limitBadge.style.color = secWords > 4000 ? 'var(--danger)' : '#64748b';
-        limitBadge.style.background = secWords > 4000 ? '#fee2e2' : '#f1f5f9';
+        limitBadge.innerText = `Characters: ${secChars} / 4000`;
+        limitBadge.style.color = secChars > 4000 ? 'var(--danger)' : '#64748b';
+        limitBadge.style.background = secChars > 4000 ? '#fee2e2' : '#f1f5f9';
 
         let sumText = document.getElementById(`sum-${sIdx}`);
         sumText.innerText = `${secTotal} / ${sec.max}`;
@@ -654,8 +740,149 @@ function saveToSheets() {
         alert("Network Error: Could not reach the database.");
     });
 }
+function exportPDFProfessional() {
+    const projNo = document.getElementById('proj-no').value || 'Project';
+    const projName = document.getElementById('proj-name').value || 'Evaluation';
+    const timestamp = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+    const grandTotal = document.getElementById('grand-total').innerText;
+    const status = document.getElementById('status-badge').innerText;
+    
+    // Profesyonel PDF HTML'i oluştur
+    let reportHTML = `
+    <div class="pdf-report">
+        <div class="pdf-header">
+            <h1>EVALUATION REPORT</h1>
+            <p>Standardized Assessment & Scoring Document</p>
+        </div>
+        
+        <div class="pdf-meta">
+            <div class="pdf-meta-item">
+                <div class="pdf-meta-label">Project ID</div>
+                <div class="pdf-meta-value">${projNo}</div>
+            </div>
+            <div class="pdf-meta-item">
+                <div class="pdf-meta-label">Total Score</div>
+                <div class="pdf-meta-value">${grandTotal} / 100</div>
+            </div>
+            <div class="pdf-meta-item">
+                <div class="pdf-meta-label">Status</div>
+                <div class="pdf-meta-value" style="color: ${status === 'PASSED' ? '#22c55e' : '#ef4444'}">${status}</div>
+            </div>
+        </div>
+        
+        <div style="padding: 20px;">
+            <div style="margin-bottom: 20px;">
+                <div style="font-size: 13px; color: #475569;"><strong>Project Name:</strong> ${projName}</div>
+                <div style="font-size: 13px; color: #475569; margin-top: 5px;"><strong>Report Date:</strong> ${new Date().toLocaleDateString('en-GB', {year: 'numeric', month: 'long', day: 'numeric'})}</div>
+            </div>
+    `;
+    
+    // Rubric items ekle
+    rubricData.forEach((section, sIdx) => {
+        reportHTML += `<div class="pdf-section">
+            <div class="pdf-section-title">${section.title} (${document.getElementById(`sum-${sIdx}`).innerText})</div>`;
+        
+        section.items.forEach(item => {
+            const cleanId = item.id.replace('.', '-');
+            const score = parseInt(document.getElementById(`val-${cleanId}`).value) || 0;
+            const comment = document.getElementById(`comment-${cleanId}`).value || '(No comment provided)';
+            
+            reportHTML += `<div class="pdf-item">
+                <div class="pdf-item-header">
+                    <div class="pdf-item-name"><strong>${item.id}</strong> — ${item.name}</div>
+                    <div class="pdf-item-score">${score} / ${item.max}</div>
+                </div>
+                <div class="pdf-item-comment">${escapeHtml(comment)}</div>
+            </div>`;
+        });
+        
+        reportHTML += `</div>`;
+    });
+    
+    // Overall section
+    reportHTML += `<div class="pdf-section" style="margin-top: 40px;">
+        <div class="pdf-section-title">Summary & Recommendations</div>`;
+    
+    const overallSummary = document.getElementById('overall-summary').value || '(No summary provided)';
+    const overallStrengths = document.getElementById('overall-strengths').value || '(No strengths listed)';
+    const overallWeaknesses = document.getElementById('overall-weaknesses').value || '(No weaknesses listed)';
+    
+    reportHTML += `
+        <div class="pdf-overall">
+            <div class="pdf-overall-title">Evaluation Summary</div>
+            <div class="pdf-overall-text">${escapeHtml(overallSummary)}</div>
+        </div>
+        
+        <div class="pdf-overall" style="border-color: #86efac; background: #f0fdf4; margin-top: 12px;">
+            <div class="pdf-overall-title" style="color: #166534;">Main Strengths</div>
+            <div class="pdf-overall-text" style="color: #145a32;">${escapeHtml(overallStrengths)}</div>
+        </div>
+        
+        <div class="pdf-overall" style="border-color: #fca5a5; background: #fef2f2; margin-top: 12px;">
+            <div class="pdf-overall-title" style="color: #991b1b;">Main Weaknesses</div>
+            <div class="pdf-overall-text" style="color: #7f1d1d;">${escapeHtml(overallWeaknesses)}</div>
+        </div>
+    </div>
+    
+        <div class="pdf-footer">
+            <div>Document generated on ${timestamp}</div>
+            <div style="margin-top: 8px; opacity: 0.7;">EVE 2026 Assessment System • Evaluation Report</div>
+        </div>
+        </div>
+    </div>`;
+    
+    // Container oluştur
+    const reportDiv = document.createElement('div');
+    reportDiv.innerHTML = reportHTML;
+    
+    // PDF oluştur
+    document.getElementById('loader-text').innerText = "Generating Professional Report...";
+    document.getElementById('loader').style.display = "flex";
+    
+    html2pdf()
+        .set({
+            margin: [0.3, 0.3, 0.3, 0.3],
+            filename: `${projNo}_${projName}_${timestamp}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            },
+            jsPDF: {
+                unit: 'cm',
+                format: 'a4',
+                orientation: 'portrait'
+            },
+            pagebreak: { mode: 'avoid-all' }
+        })
+        .from(reportDiv)
+        .save()
+        .then(() => {
+            document.getElementById('loader').style.display = "none";
+            console.log(`✓ PDF Report: ${projNo}_${projName}_${timestamp}.pdf`);
+        })
+        .catch((err) => {
+            document.getElementById('loader').style.display = "none";
+            console.error('PDF Error:', err);
+            alert('PDF generation failed. Please try again.');
+        });
+}
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+}
 
 window.onload = init;
 </script>
 </body>
 </html>
+
