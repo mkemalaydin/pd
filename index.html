@@ -51,7 +51,12 @@
         .layout { display: grid; grid-template-columns: 1fr 380px; gap: 30px; align-items: start; }
         
         .section-card { background: white; border-radius: 16px; padding: 30px; margin-bottom: 30px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .section-header { border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Accordion Header Style */
+        .section-header { border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; transition: opacity 0.2s; }
+        .section-header:hover { opacity: 0.8; }
+        .chevron { display: inline-block; width: 25px; color: var(--accent); font-size: 1.2rem; transition: transform 0.3s; }
+        
         .section-title { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
         .section-meta { text-align: right; }
         .word-limit { font-size: 0.85rem; font-weight: 600; color: #64748b; background: #f1f5f9; padding: 4px 12px; border-radius: 20px; margin-bottom: 5px; display: inline-block; }
@@ -171,7 +176,7 @@
 
 <script>
 // ==========================================
-// 1. DATABASE URL (LÜTFEN BURAYI GÜNCELLEYİN)
+// 1. DATABASE URL
 // ==========================================
 const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbwXV_ftQaSCYDSJuMkfaVO08Akp5zilf-pjayXg0oF0ockJAAbKdoxIvaoJamb4PyrjGw/exec"; 
 
@@ -247,13 +252,28 @@ const rubricData = [
             { id: "4.1", name: "Dissemination", max: 5, guide: ["A clear awareness-raising, dissemination, and communication strategy is presented throughout the lifetime of the project.", "The strategy ensures outreach to: Relevant target groups, Stakeholders, the general public", "The strategy includes plans to make produced materials accessible through open licenses."], levels: [{l:"Exc", r:[5], d:"Comprehensive, targeted, sustainable."}, {l:"VG", r:[4], d:"Strong with minor limitations."}, {l:"G", r:[2,3], d:"Adequate but insufficiently detailed."}, {l:"F/P", r:[0,1], d:"Weak or unclear."}] },
             { id: "4.2", name: "Exploitation", max: 5, guide: ["The application demonstrates that the selected virtual exchange approach(es) can be successfully disseminated.", "The project is expected to Create a wider impact and influence systemic change", "The exploitation approach is clearly described and the proposed measures for exploiting project results are potentially effective."], levels: [{l:"Exc", r:[5], d:"Highly credible systemic impact."}, {l:"VG", r:[4], d:"Convincing with minor weaknesses."}, {l:"G", r:[2,3], d:"Generally appropriate, limited ambition."}, {l:"F/P", r:[0,1], d:"Weakly developed."}] },
             { id: "4.3", name: "Impact", max: 7, guide: ["The foreseeable impact, particularly for the identified target groups, is clearly defined.", "Measures are in place to ensure that the impact can be achieved and evaluated", "The results of the activities are likely to be significant.", "The project outcomes have the potential to support: Long-term changes, Improvements, Developments", "These outcomes benefit the target groups and relevant systems concerned.", "The application explains how the impact of learning outcomes through virtual exchange will be evaluated.", "The evaluation aims to provide data-informed recommendations to improve virtual exchange teaching and learning beyond the project."], levels: [{l:"Exc", r:[7], d:"Highly significant and measurable."}, {l:"VG", r:[5,6], d:"Clearly articulated and supported."}, {l:"G", r:[3,4], d:"Relevant but insufficiently evidenced."}, {l:"F/P", r:[0,1,2], d:"Vague or inadequately justified."}] },
-            { id: "4.4", name: "Sustainability", max: 3, guide: ["The application includes appropriate measures and resources to ensure sustainability.", "The results and benefits of the project are intended to continue beyond the project lifetime."], levels: [{l:"Exc", r:[3], d:"Robust, realistic, adequately resourced."}, {l:"VG", r:[2], d:"Appropriately addressed."}, {l:"G", r:[], d:"N/A"}, {l:"F/P", r:[0,1], d:"Weak or insufficiently detailed."}] }
+            
+            // GÜNCELLEME BURADA YAPILDI: 4.4 Kriteri
+            { id: "4.4", name: "Sustainability", max: 3, guide: ["The application includes appropriate measures and resources to ensure sustainability.", "The results and benefits of the project are intended to continue beyond the project lifetime."], levels: [{l:"Exc", r:[3], d:"Robust, realistic, adequately resourced."}, {l:"VG", r:[2], d:"Appropriately addressed."}, {l:"G", r:[1], d:"Generally appropriate, limited ambition."}, {l:"F/P", r:[0], d:"Weak or insufficiently detailed."}] }
         ]
     }
 ];
 
 let currentNewImages = {}; // Geçici çoklu resim deposu
 let loadedImageUrls = {};  // Database'den dönen URL deposu
+
+// Accordion (Açılır/Kapanır) Fonksiyonu
+function toggleSection(idx) {
+    const body = document.getElementById(`section-body-${idx}`);
+    const chevron = document.getElementById(`chevron-${idx}`);
+    if (body.style.display === 'none') {
+        body.style.display = 'block';
+        chevron.innerText = '▼';
+    } else {
+        body.style.display = 'none';
+        chevron.innerText = '▶';
+    }
+}
 
 function init() {
     const main = document.getElementById('main-content');
@@ -270,14 +290,23 @@ function init() {
     rubricData.forEach((sec, sIdx) => {
         const secDiv = document.createElement('div');
         secDiv.className = 'section-card';
-        secDiv.innerHTML = `
-            <div class="section-header">
-                <div class="section-title">${sec.title}</div>
+        
+        // Sadece ilk bölüm açık gelsin, diğerleri kapalı olsun
+        const isDefaultOpen = (sIdx === 0);
+        
+        let htmlContent = `
+            <div class="section-header" onclick="toggleSection(${sIdx})">
+                <div class="section-title">
+                    <span class="chevron" id="chevron-${sIdx}">${isDefaultOpen ? '▼' : '▶'}</span>
+                    ${sec.title}
+                </div>
                 <div class="section-meta">
-                    <div class="word-limit" id="limit-${sIdx}">Words: 0 / 4000</div>
+                    <div class="word-limit" id="limit-${sIdx}">Characters: 0 / 4000</div>
                     <div class="section-score" id="sec-total-${sIdx}">0 / ${sec.max}</div>
                 </div>
-            </div>`;
+            </div>
+            <div class="section-body" id="section-body-${sIdx}" style="display: ${isDefaultOpen ? 'block' : 'none'};">
+        `;
 
         sec.items.forEach((item) => {
             const cleanId = item.id.replace('.','-');
@@ -287,7 +316,7 @@ function init() {
                 btns += `<button class="btn-score" id="btn-${cleanId}-${i}" onclick="selectScore(this, ${sIdx}, '${item.id}', ${i})">${i}</button>`;
             }
 
-            secDiv.innerHTML += `
+            htmlContent += `
                 <div class="sub-item">
                     <div class="sub-title">${item.id} ${item.name}</div>
                     
@@ -325,7 +354,10 @@ function init() {
                 </div>`;
         });
         
+        htmlContent += `</div>`; // section-body kapanışı
+        secDiv.innerHTML = htmlContent;
         main.appendChild(secDiv);
+        
         summaryList.innerHTML += `<div class="summary-row"><span>${sIdx + 1}. ${criterionDisplayNames[sIdx]}</span> <b id="sum-${sIdx}" style="font-size:1.1rem">0 / ${sec.max}</b></div>`;
     });
 
@@ -591,6 +623,16 @@ function handleProjectSelection() {
         document.querySelectorAll('.comment-area').forEach(t => t.value = '');
         document.querySelectorAll('.vocab-container').forEach(c => c.style.display = 'none');
         
+        // Akordeon menüleri sıfırlayıp sadece ilkini açık yapalım
+        rubricData.forEach((sec, sIdx) => {
+            const body = document.getElementById(`section-body-${sIdx}`);
+            const chevron = document.getElementById(`chevron-${sIdx}`);
+            if (body && chevron) {
+                body.style.display = sIdx === 0 ? 'block' : 'none';
+                chevron.innerText = sIdx === 0 ? '▼' : '▶';
+            }
+        });
+        
         currentNewImages = {};
         loadedImageUrls = {};
         document.querySelectorAll('.preview-container').forEach(c => c.innerHTML = '');
@@ -648,6 +690,16 @@ function loadProjectData(projNo) {
                     loadedImageUrls[valId] = data.details[id].imageUrls;
                 }
                 renderPreviews(valId);
+            });
+            
+            // Proje yüklendiğinde tüm akordeon sekmelerini otomatik açalım
+            rubricData.forEach((sec, sIdx) => {
+                const body = document.getElementById(`section-body-${sIdx}`);
+                const chevron = document.getElementById(`chevron-${sIdx}`);
+                if (body && chevron) {
+                    body.style.display = 'block';
+                    chevron.innerText = '▼';
+                }
             });
         }
     })
@@ -885,4 +937,3 @@ window.onload = init;
 </script>
 </body>
 </html>
-
