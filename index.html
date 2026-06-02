@@ -93,14 +93,8 @@
         .comment-area { width: 100%; box-sizing: border-box; padding: 15px; border: 1px solid var(--border); border-radius: 8px; min-height: 120px; font-family: inherit; font-size: 0.95rem; line-height: 1.5; resize: vertical; margin-top: 15px; }
         .comment-area:focus { outline: none; border-color: var(--accent); }
 
-        /* Multiple Image Upload Styles */
         .evidence-box { background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 8px; padding: 15px; margin-top: 15px; }
         .evidence-box label { font-size: 0.85rem; font-weight: 600; color: var(--primary); display: block; margin-bottom: 8px; }
-        .preview-container { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
-        .img-wrapper { position: relative; width: 100px; height: 75px; }
-        .img-wrapper img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 2px solid var(--border); cursor: zoom-in; transition: 0.2s; }
-        .img-wrapper img:hover { border-color: var(--accent); }
-        .btn-remove-img { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
         #image-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; padding: 40px; }
         #image-modal img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
@@ -253,14 +247,13 @@ const rubricData = [
             { id: "4.2", name: "Exploitation", max: 5, guide: ["The application demonstrates that the selected virtual exchange approach(es) can be successfully disseminated.", "The project is expected to Create a wider impact and influence systemic change", "The exploitation approach is clearly described and the proposed measures for exploiting project results are potentially effective."], levels: [{l:"Exc", r:[5], d:"Highly credible systemic impact."}, {l:"VG", r:[4], d:"Convincing with minor weaknesses."}, {l:"G", r:[2,3], d:"Generally appropriate, limited ambition."}, {l:"F/P", r:[0,1], d:"Weakly developed."}] },
             { id: "4.3", name: "Impact", max: 7, guide: ["The foreseeable impact, particularly for the identified target groups, is clearly defined.", "Measures are in place to ensure that the impact can be achieved and evaluated", "The results of the activities are likely to be significant.", "The project outcomes have the potential to support: Long-term changes, Improvements, Developments", "These outcomes benefit the target groups and relevant systems concerned.", "The application explains how the impact of learning outcomes through virtual exchange will be evaluated.", "The evaluation aims to provide data-informed recommendations to improve virtual exchange teaching and learning beyond the project."], levels: [{l:"Exc", r:[7], d:"Highly significant and measurable."}, {l:"VG", r:[5,6], d:"Clearly articulated and supported."}, {l:"G", r:[3,4], d:"Relevant but insufficiently evidenced."}, {l:"F/P", r:[0,1,2], d:"Vague or inadequately justified."}] },
             
-            // GÜNCELLEME BURADA YAPILDI: 4.4 Kriteri
             { id: "4.4", name: "Sustainability", max: 3, guide: ["The application includes appropriate measures and resources to ensure sustainability.", "The results and benefits of the project are intended to continue beyond the project lifetime."], levels: [{l:"Exc", r:[3], d:"Robust, realistic, adequately resourced."}, {l:"VG", r:[2], d:"Appropriately addressed."}, {l:"G", r:[1], d:"Generally appropriate, limited ambition."}, {l:"F/P", r:[0], d:"Weak or insufficiently detailed."}] }
         ]
     }
 ];
 
-let currentNewImages = {}; // Geçici çoklu resim deposu
-let loadedImageUrls = {};  // Database'den dönen URL deposu
+let currentNewImages = {}; // Keeps track of new links before saving
+let loadedImageUrls = {};  // Keeps track of saved links from DB
 
 // Accordion (Açılır/Kapanır) Fonksiyonu
 function toggleSection(idx) {
@@ -345,9 +338,12 @@ function init() {
                     <textarea class="comment-area" id="comment-${cleanId}" placeholder="Enter form evaluation for ${item.id}..." oninput="calculate()"></textarea>
                     
                     <div class="evidence-box">
-                        <label>Upload Evidence / Screenshots (Multiple Allowed):</label>
-                        <input type="file" multiple accept="image/*" onchange="handleMultipleImageUpload(this, '${item.id}')">
-                        <div class="preview-container" id="preview-container-${cleanId}"></div>
+                        <label>Add Evidence Link (URL to PDF, Image, Document, or Website):</label>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="url" id="url-input-${cleanId}" placeholder="https://..." style="flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: 6px; outline: none;">
+                            <button type="button" onclick="addEvidenceLink('${item.id}')" style="background: var(--accent); color: white; border: none; padding: 0 15px; border-radius: 6px; font-weight: bold; cursor: pointer;">Add Link</button>
+                        </div>
+                        <div class="preview-container" id="preview-container-${cleanId}" style="display: flex; flex-direction: column; gap: 8px;"></div>
                     </div>
 
                     <input type="hidden" class="score-val" data-sec="${sIdx}" id="val-${cleanId}" value="0">
@@ -430,65 +426,73 @@ function init() {
     loadProjectList();
 }
 
-// Görsel Sıkıştırma ve Çoklu Yükleme Mantığı
-function handleMultipleImageUpload(input, itemId) {
+// Yeni: Sadece URL Kanıt Eklemek İçin Fonksiyon
+function addEvidenceLink(itemId) {
     const cleanId = itemId.replace('.', '-');
+    const input = document.getElementById(`url-input-${cleanId}`);
+    let url = input.value.trim();
+    
+    if (!url) return;
+    
+    // URL doğrulaması (http/https ekle)
+    if (!/^https?:\/\//i.test(url)) {
+        url = 'https://' + url;
+    }
+
     if (!currentNewImages[cleanId]) currentNewImages[cleanId] = [];
-
-    Array.from(input.files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 1000;
-                let width = img.width;
-                let height = img.height;
-
-                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                canvas.width = width;
-                canvas.height = height;
-                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.6); 
-                currentNewImages[cleanId].push(dataUrl);
-                renderPreviews(cleanId);
-            }
-            img.src = e.target.result;
-        }
-        reader.readAsDataURL(file);
-    });
+    currentNewImages[cleanId].push(url);
+    input.value = ''; // Kutuyu temizle
+    renderPreviews(cleanId);
 }
 
+// Önizlemeleri Gösterme Fonksiyonu (Resim ve Link Ayrımıyla)
 function renderPreviews(cleanId) {
     const container = document.getElementById(`preview-container-${cleanId}`);
     container.innerHTML = '';
     
-    // Veritabanından Gelen Eski Resimler Varsa Render Et
+    // Veritabanından Gelen Eski Linkleri Render Et
     if (loadedImageUrls[cleanId]) {
         loadedImageUrls[cleanId].forEach((url, idx) => {
-            const wrap = document.createElement('div');
-            wrap.className = 'img-wrapper';
-            wrap.innerHTML = `
-                <img src="${url}" onclick="openModal('${url}')" title="Click to enlarge">
-                <div style="position:absolute; bottom:0; background:rgba(0,0,0,0.6); color:white; font-size:10px; padding:2px 4px; border-radius:4px; width:100%; box-sizing:border-box; text-align:center;">Saved</div>
-            `;
-            container.appendChild(wrap);
+            container.appendChild(createEvidenceElement(url, cleanId, idx, true));
         });
     }
 
-    // Yeni Eklenen (Henüz Kaydedilmemiş) Resimler
+    // Yeni Eklenen Linkleri Render Et
     if (currentNewImages[cleanId]) {
-        currentNewImages[cleanId].forEach((src, idx) => {
-            const wrap = document.createElement('div');
-            wrap.className = 'img-wrapper';
-            wrap.innerHTML = `
-                <img src="${src}" onclick="openModal('${src}')" title="Click to enlarge">
-                <button type="button" class="btn-remove-img" onclick="removeNewImage('${cleanId}', ${idx})">X</button>
-            `;
-            container.appendChild(wrap);
+        currentNewImages[cleanId].forEach((url, idx) => {
+            container.appendChild(createEvidenceElement(url, cleanId, idx, false));
         });
     }
+}
+
+// Yardımcı: Render Edilecek Elementi Oluşturur (Resim/İkon tespiti)
+function createEvidenceElement(url, cleanId, idx, isSaved) {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem;";
+    
+    // URL'nin sonu resim uzantısı mı kontrol et (Örn: .jpg, .png)
+    const isImage = /\.(jpeg|jpg|gif|png|webp|bmp)(\?.*)?$/i.test(url);
+    
+    let displayHtml = '';
+    if (isImage) {
+        displayHtml = `<div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                           <img src="${url}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; border:1px solid #ccc; cursor:pointer;" onclick="openModal('${url}')" title="Click to view">
+                           <a href="${url}" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 200px;" title="${url}">${url}</a>
+                       </div>`;
+    } else {
+        // Resim değilse standart sayfa/PDF ikonu göster
+        displayHtml = `<div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                           <span style="font-size:24px;">📄</span>
+                           <a href="${url}" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 250px;" title="${url}">${url}</a>
+                       </div>`;
+    }
+
+    let actionHtml = isSaved 
+        ? `<span style="color: var(--success); font-weight: bold; font-size: 0.75rem; padding-left:10px;">SAVED</span>`
+        : `<button type="button" onclick="removeNewImage('${cleanId}', ${idx})" style="background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-weight: bold; font-size: 0.75rem; flex-shrink:0; margin-left:10px;">REMOVE</button>`;
+
+    wrap.innerHTML = displayHtml + actionHtml;
+    return wrap;
 }
 
 function removeNewImage(cleanId, idx) {
@@ -685,7 +689,7 @@ function loadProjectData(projNo) {
                 let btn = document.getElementById(`btn-${valId}-${data.details[id].score}`);
                 if(btn) btn.click();
 
-                // Görselleri Veritabanından (JSON içindeki array) Yükle
+                // Linkleri Veritabanından Yükle
                 if(data.details[id].imageUrls && Array.isArray(data.details[id].imageUrls)) {
                     loadedImageUrls[valId] = data.details[id].imageUrls;
                 }
@@ -757,12 +761,12 @@ function saveToSheets() {
                 comment: document.getElementById(`comment-${valId}`).value 
             };
             
-            // Eğer yeni resimler seçildiyse pakete ekle (Code.gs işleyecek)
+            // Eğer yeni URL kanıt eklendiyse pakete dahil et
             if (currentNewImages[valId] && currentNewImages[valId].length > 0) {
                 payload.details[item.id].newImages = currentNewImages[valId];
             }
             
-            // Mevcut database URL'leri varsa onları koru
+            // Mevcut veritabanı URL'lerini koru
             if (loadedImageUrls[valId] && loadedImageUrls[valId].length > 0) {
                 payload.details[item.id].imageUrls = loadedImageUrls[valId];
             }
@@ -781,7 +785,6 @@ function saveToSheets() {
         if(res.result === "success") {
             alert("Success! Record securely saved to the database.");
             loadProjectList(); 
-            // Seçili projeyi yükleyerek kaydedilen resimlerin Drive URL versiyonlarını ekrana getir
             setTimeout(() => { document.getElementById('project-selector').value = projNo; handleProjectSelection(); }, 500);
         } else {
             alert("Database Error: " + res.error);
@@ -792,6 +795,7 @@ function saveToSheets() {
         alert("Network Error: Could not reach the database.");
     });
 }
+
 function exportPDFProfessional() {
     const projNo = document.getElementById('proj-no').value || 'Project';
     const projName = document.getElementById('proj-name').value || 'Evaluation';
@@ -799,7 +803,6 @@ function exportPDFProfessional() {
     const grandTotal = document.getElementById('grand-total').innerText;
     const status = document.getElementById('status-badge').innerText;
     
-    // Profesyonel PDF HTML'i oluştur
     let reportHTML = `
     <div class="pdf-report">
         <div class="pdf-header">
@@ -829,7 +832,6 @@ function exportPDFProfessional() {
             </div>
     `;
     
-    // Rubric items ekle
     rubricData.forEach((section, sIdx) => {
         reportHTML += `<div class="pdf-section">
             <div class="pdf-section-title">${section.title} (${document.getElementById(`sum-${sIdx}`).innerText})</div>`;
@@ -851,7 +853,6 @@ function exportPDFProfessional() {
         reportHTML += `</div>`;
     });
     
-    // Overall section
     reportHTML += `<div class="pdf-section" style="margin-top: 40px;">
         <div class="pdf-section-title">Summary & Recommendations</div>`;
     
@@ -883,11 +884,9 @@ function exportPDFProfessional() {
         </div>
     </div>`;
     
-    // Container oluştur
     const reportDiv = document.createElement('div');
     reportDiv.innerHTML = reportHTML;
     
-    // PDF oluştur
     document.getElementById('loader-text').innerText = "Generating Professional Report...";
     document.getElementById('loader').style.display = "flex";
     
