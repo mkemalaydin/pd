@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<html lang="tr">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EVE 2026 Admin Dashboard</title>
+    <title>Kalite Güvence Değerlendirme Sistemi | Eğitim ve Öğretim</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { --bg: #f1f5f9; --primary: #1e293b; --accent: #3b82f6; --success: #22c55e; --danger: #ef4444; --warning: #f59e0b; --border: #cbd5e1; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 20px; line-height: 1.6; }
+        :root { --bg: #f8fafc; --primary: #0f172a; --accent: #0284c7; --success: #16a34a; --danger: #dc2626; --warning: #d97706; --border: #cbd5e1; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; line-height: 1.6; color: #334155; }
         .container { max-width: 1400px; margin: 0 auto; }
         
         @media print {
@@ -16,107 +17,142 @@
             .nav-panel { display: none !important; }
             .layout { display: block !important; }
             .sidebar { display: none !important; }
-            .section-card { page-break-inside: avoid; break-inside: avoid; margin: 0; }
-            .sub-item { page-break-inside: avoid; break-inside: avoid; }
-            textarea { word-wrap: break-word; white-space: pre-wrap; }
-            .btn-save, .btn-score { display: none !important; }
+            .section-card { page-break-inside: avoid; break-inside: avoid; margin: 0; border: none; box-shadow: none; }
+            .sub-item { page-break-inside: avoid; break-inside: avoid; border-color: #e2e8f0; }
+            .btn-save, .btn-score, .suggestion-box, .interactive-panel, .evidence-box, .rte-toolbar { display: none !important; }
+            .section-body, .sub-body { display: block !important; }
+            .toggle-icon { display: none !important; }
         }
         
-        .pdf-report { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; }
-        .pdf-header { background: #1e293b; color: white; padding: 30px; text-align: center; border-bottom: 3px solid #3b82f6; }
-        .pdf-header h1 { margin: 0; font-size: 28px; font-weight: bold; }
-        .pdf-header p { margin: 8px 0 0 0; font-size: 12px; opacity: 0.9; }
-        .pdf-meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; padding: 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        /* PDF Export Styles */
+        .pdf-report { font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; }
+        .pdf-header { background: #0f172a; color: white; padding: 30px; text-align: center; border-bottom: 4px solid #0284c7; }
+        .pdf-header h1 { margin: 0; font-size: 26px; font-weight: 800; }
+        .pdf-header p { margin: 8px 0 0 0; font-size: 13px; opacity: 0.9; }
+        .pdf-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 20px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; }
         .pdf-meta-item { text-align: center; }
-        .pdf-meta-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
-        .pdf-meta-value { font-size: 18px; font-weight: bold; color: #1e293b; margin-top: 4px; }
+        .pdf-meta-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; }
+        .pdf-meta-value { font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 4px; }
         .pdf-section { margin-bottom: 30px; }
-        .pdf-section-title { font-size: 16px; font-weight: bold; color: white; background: #1e293b; padding: 12px 16px; margin-bottom: 15px; border-left: 4px solid #3b82f6; }
+        .pdf-section-title { font-size: 15px; font-weight: bold; color: white; background: #1e293b; padding: 10px 15px; margin-bottom: 15px; border-left: 4px solid #0284c7; display: flex; justify-content: space-between; }
         .pdf-item { border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin-bottom: 12px; background: white; page-break-inside: avoid; }
-        .pdf-item-header { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 10px; }
-        .pdf-item-name { font-weight: 600; font-size: 12px; color: #1e293b; }
-        .pdf-item-score { text-align: right; font-weight: bold; font-size: 14px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 4px; display: inline-block; float: right; }
-        .pdf-item-comment { font-size: 11px; color: #475569; line-height: 1.5; margin-top: 8px; white-space: pre-wrap; word-wrap: break-word; padding: 10px; background: #f8fafc; border-radius: 4px; }
-        .pdf-footer { text-align: center; padding: 20px; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; margin-top: 30px; }
-        .pdf-overall { background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 6px; padding: 15px; margin-top: 20px; }
-        .pdf-overall-title { font-weight: bold; color: #0369a1; margin-bottom: 8px; font-size: 12px; }
-        .pdf-overall-text { font-size: 11px; color: #0c4a6e; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; }
+        .pdf-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .pdf-item-name { font-weight: 700; font-size: 13px; color: #0f172a; max-width: 80%; }
+        .pdf-item-score { font-weight: bold; font-size: 14px; padding: 4px 10px; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; border-radius: 4px; }
+        .pdf-item-comment { font-size: 11px; color: #475569; line-height: 1.6; margin-top: 8px; padding: 10px; background: #f8fafc; border-radius: 4px; border: 1px dashed #cbd5e1; word-wrap: break-word; }
+        .pdf-item-comment a { color: #0284c7; text-decoration: underline; font-weight: bold; }
+        .pdf-overall { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 15px; margin-top: 20px; }
+        .pdf-overall-title { font-weight: 800; color: #0369a1; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; }
+        .pdf-overall-text { font-size: 12px; color: #0c4a6e; line-height: 1.6; word-wrap: break-word; }
+        .pdf-overall-text a { color: #0284c7; text-decoration: underline; font-weight: bold; }
         
-        .nav-panel { background: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 20px; border-top: 4px solid var(--accent); flex-wrap: wrap; }
+        /* App UI Styles */
+        .nav-panel { background: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 20px; border-top: 4px solid var(--accent); flex-wrap: wrap; }
         .nav-group { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 300px; }
-        .nav-panel select, .nav-panel input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; flex: 1; outline: none; }
+        .nav-panel select, .nav-panel input { padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; flex: 1; outline: none; font-family: inherit; }
         .nav-panel select { background: #f8fafc; font-weight: 600; cursor: pointer; }
-        .nav-panel select:focus, .nav-panel input:focus { border-color: var(--accent); }
+        .nav-panel select:focus, .nav-panel input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); }
 
-        .layout { display: grid; grid-template-columns: 1fr 380px; gap: 30px; align-items: start; }
+        .layout { display: grid; grid-template-columns: 1fr 350px; gap: 30px; align-items: start; }
+        main { min-width: 0; } 
         
-        .section-card { background: white; border-radius: 16px; padding: 30px; margin-bottom: 30px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        /* Accordion (Açılır/Kapanır) Stilleri */
+        .section-card { background: white; border-radius: 12px; padding: 30px; margin-bottom: 30px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: all 0.3s ease; }
+        .section-header { border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; transition: background 0.2s; border-radius: 8px; padding: 10px; margin-left: -10px; margin-right: -10px; }
+        .section-header:hover { background: #f8fafc; }
+        .section-title { font-size: 1.3rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .section-score { font-size: 1.2rem; font-weight: 800; color: var(--accent); background: #f0f9ff; padding: 4px 16px; border-radius: 8px; border: 1px solid #bae6fd; }
+        .section-body { display: block; padding-top: 10px; }
+        .section-card.collapsed .section-body { display: none; }
+        .section-card.collapsed .section-header { border-bottom: none; margin-bottom: 0; }
         
-        /* Accordion Header Style */
-        .section-header { border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; transition: opacity 0.2s; }
-        .section-header:hover { opacity: 0.8; }
-        .chevron { display: inline-block; width: 25px; color: var(--accent); font-size: 1.2rem; transition: transform 0.3s; }
+        .sub-item { border: 1px solid #f1f5f9; border-radius: 10px; padding: 25px; margin-bottom: 30px; background: #ffffff; transition: 0.2s; }
+        .sub-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 15px; border-left: 4px solid var(--accent); padding-left: 12px; color: var(--primary); cursor: pointer; user-select: none; display: flex; align-items: center; gap: 10px; padding-top: 5px; padding-bottom: 5px; border-radius: 0 6px 6px 0; transition: background 0.2s; }
+        .sub-title:hover { background: #f8fafc; }
+        .sub-body { display: block; padding-top: 10px; }
+        .sub-item.collapsed .sub-body { display: none; }
+        .sub-item.collapsed { padding-bottom: 10px; }
         
-        .section-title { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
-        .section-meta { text-align: right; }
-        .word-limit { font-size: 0.85rem; font-weight: 600; color: #64748b; background: #f1f5f9; padding: 4px 12px; border-radius: 20px; margin-bottom: 5px; display: inline-block; }
-        .section-score { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
-        
-        .sub-item { border: 1px solid #f1f5f9; border-radius: 12px; padding: 25px; margin-bottom: 30px; background: #ffffff; }
-        .sub-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 15px; border-left: 4px solid var(--accent); padding-left: 12px; color: var(--primary); }
+        .toggle-icon { font-size: 0.8rem; color: #94a3b8; transition: transform 0.3s ease; }
+        .collapsed > .section-header .toggle-icon, .collapsed > .sub-title .toggle-icon { transform: rotate(-90deg); }
 
+        /* Likert Checklist & Dynamic Suggestion */
+        .interactive-panel { display: grid; grid-template-columns: 1fr 280px; gap: 20px; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .checklist-container h4 { margin: 0 0 15px 0; font-size: 0.9rem; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+        .check-item { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 10px; padding: 10px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; }
+        .check-text { font-size: 0.85rem; color: #334155; line-height: 1.4; flex: 1; }
+        .likert-group { display: flex; gap: 4px; }
+        .likert-group input[type="radio"] { display: none; }
+        .likert-group label { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 6px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s; color: #64748b; background: #f8fafc; }
+        .likert-group label:hover { border-color: var(--accent); color: var(--accent); }
+        .likert-group input[type="radio"]:checked + label { background: var(--accent); border-color: var(--accent); color: white; box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2); }
+        
+        .suggestion-box { background: white; border: 2px solid var(--border); border-radius: 8px; padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.3s; }
+        .suggestion-box.active { border-color: var(--accent); box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1); }
+        .sugg-label { font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
+        .sugg-value { font-size: 2.5rem; font-weight: 900; color: var(--primary); line-height: 1; margin-bottom: 10px; transition: 0.3s; }
+        .btn-apply-sugg { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; opacity: 0.5; pointer-events: none; transition: 0.2s; }
+        .suggestion-box.active .btn-apply-sugg { opacity: 1; pointer-events: auto; }
+        .suggestion-box.active .btn-apply-sugg:hover { background: #0369a1; transform: translateY(-1px); }
+
+        /* Main Score Buttons */
         .score-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
-        .btn-score { width: 42px; height: 42px; border-radius: 8px; border: 1px solid var(--border); background: white; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; color: #475569; }
-        .btn-score:hover { border-color: var(--accent); color: var(--accent); }
-        .btn-score.active.excellent { background: var(--success); color: white; border-color: var(--success); }
-        .btn-score.active.verygood { background: var(--accent); color: white; border-color: var(--accent); }
-        .btn-score.active.good { background: var(--warning); color: white; border-color: var(--warning); }
-        .btn-score.active.fair { background: #fb923c; color: white; border-color: #fb923c; }
-        .btn-score.active.poor { background: var(--danger); color: white; border-color: var(--danger); }
+        .btn-score { flex: 1; height: 45px; border-radius: 8px; border: 1px solid var(--border); background: #ffffff; font-weight: 800; cursor: pointer; transition: all 0.2s; font-size: 1.1rem; color: #475569; }
+        .btn-score:hover { border-color: var(--accent); color: var(--accent); background: #f0f9ff; }
+        .btn-score.active { color: white; border-color: transparent; }
+        .btn-score.active.lv5 { background: var(--success); }
+        .btn-score.active.lv4 { background: #84cc16; }
+        .btn-score.active.lv3 { background: var(--accent); }
+        .btn-score.active.lv2 { background: var(--warning); }
+        .btn-score.active.lv1 { background: var(--danger); }
 
-        .rubric-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.85rem; }
-        .rubric-table th, .rubric-table td { border: 1px solid var(--border); padding: 10px; text-align: left; vertical-align: top; width: 25%; }
-        .rubric-table th { background: #f8fafc; color: #475569; }
-        .rubric-table td b { display: block; margin-bottom: 4px; font-size: 0.9rem; }
+        .rubric-table { width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 20px; font-size: 0.8rem; background: white; table-layout: fixed; }
+        .rubric-table th, .rubric-table td { border: 1px solid var(--border); padding: 12px; text-align: left; vertical-align: top; line-height: 1.5; }
+        .rubric-table th { background: #f1f5f9; color: #0f172a; font-weight: 700; text-align: center; }
+        .rubric-table td { color: #475569; }
+        .rubric-table td b { display: block; margin-bottom: 6px; font-size: 0.9rem; color: var(--primary); text-align: center; background: #f8fafc; padding: 4px; border-radius: 4px; border: 1px solid #e2e8f0; }
+        .rubric-table td.selected-level { background-color: #f0fdf4; border-color: #bbf7d0; color: #166534; box-shadow: inset 0 0 0 2px #22c55e; }
+        .rubric-table td.selected-level b { background-color: #dcfce7; color: #166534; border-color: #86efac; }
+
+        /* Zengin Metin (Rich Text) Editörü Stilleri */
+        .rte-container { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-top: 15px; background: white; transition: 0.2s; }
+        .rte-container:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); }
+        .rte-toolbar { background: #f8fafc; padding: 8px 12px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; flex-wrap: wrap; }
+        .rte-btn { background: white; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 0.85rem; color: #475569; font-weight: 600; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
+        .rte-btn:hover { background: #f1f5f9; color: var(--accent); border-color: var(--accent); }
         
-        .guide-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 15px; margin-bottom: 15px; font-size: 0.9rem; color: #0369a1; }
-        .guide-box ul { margin: 5px 0 0 0; padding-left: 20px; }
-        .guide-box li { margin-bottom: 6px; }
-        
-        .vocab-container { background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin-top: 15px; display: none; }
-        .vocab-title { font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
-        .vocab-list { display: flex; flex-wrap: wrap; gap: 6px; }
-        .vocab-tag { font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; border: 1px solid transparent; user-select: text; cursor: pointer; }
-        .vocab-tag.pos { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
-        .vocab-tag.neg { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+        .comment-area { width: 100%; box-sizing: border-box; padding: 15px; min-height: 120px; font-family: inherit; font-size: 0.9rem; line-height: 1.6; background: white; overflow-y: auto; overflow-x: hidden; cursor: text; white-space: pre-wrap; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; outline: none; border: none; }
+        .comment-area:empty:before { content: attr(data-placeholder); color: #94a3b8; pointer-events: none; display: block; }
+        .comment-area a { color: #0284c7 !important; text-decoration: underline !important; font-weight: 600; cursor: pointer; word-break: break-all; }
+        .comment-area * { max-width: 100%; font-size: inherit !important; font-family: inherit !important; background: transparent !important; margin-top: 0; white-space: pre-wrap !important; overflow-wrap: break-word !important; word-break: break-word !important; }
 
-        .comment-area { width: 100%; box-sizing: border-box; padding: 15px; border: 1px solid var(--border); border-radius: 8px; min-height: 120px; font-family: inherit; font-size: 0.95rem; line-height: 1.5; resize: vertical; margin-top: 15px; }
-        .comment-area:focus { outline: none; border-color: var(--accent); }
+        /* Dynamic Evidence Box */
+        .evidence-box { background: #f8fafc; border: 2px dashed #94a3b8; border-radius: 8px; padding: 15px; margin-top: 15px; transition: all 0.3s ease; }
+        .evidence-box label { font-size: 0.9rem; font-weight: 600; color: var(--primary); display: block; margin-bottom: 8px; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
+        .preview-container { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
 
-        .evidence-box { background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 8px; padding: 15px; margin-top: 15px; }
-        .evidence-box label { font-size: 0.85rem; font-weight: 600; color: var(--primary); display: block; margin-bottom: 8px; }
+        #image-modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 2000; justify-content: center; align-items: center; padding: 40px; }
+        #image-modal img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .modal-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 2.5rem; cursor: pointer; font-weight: bold; background: none; border: none; transition: 0.2s; }
+        .modal-close:hover { color: #ef4444; }
 
-        #image-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; padding: 40px; }
-        #image-modal img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .modal-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 2.5rem; cursor: pointer; font-weight: bold; background: none; border: none; }
-
-        .hybrid-group { background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border); flex: 1; min-width: 300px; }
-        .hybrid-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.95rem; font-weight: 500; }
-        .hybrid-item select { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); font-weight: bold; cursor: pointer; outline: none; }
-
+        /* Sidebar */
         .sidebar { position: sticky; top: 20px; }
-        .score-panel { background: var(--primary); color: white; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .grand-total { font-size: 5rem; font-weight: 900; margin: 10px 0; line-height: 1; }
-        .status-badge { padding: 8px 24px; border-radius: 20px; font-weight: bold; font-size: 1rem; display: inline-block; margin-bottom: 20px; }
+        .score-panel { background: var(--primary); color: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .grand-total { font-size: 4.5rem; font-weight: 900; margin: 10px 0; line-height: 1; color: #f8fafc; }
+        .total-max { font-size: 1.2rem; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 15px; }
+        .status-badge { padding: 8px 24px; border-radius: 20px; font-weight: 800; font-size: 0.9rem; display: inline-block; margin-bottom: 20px; letter-spacing: 1px; }
         
-        .summary-list { text-align: left; margin-top: 20px; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+        .summary-list { text-align: left; margin-top: 20px; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        .summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+        .summary-row span { color: #cbd5e1; font-weight: 500; }
+        .summary-row b { color: white; font-size: 1.05rem; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 6px; }
         
-        .btn-save { width: 100%; background: var(--success); color: white; border: none; padding: 18px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 1.1rem; margin-top: 20px; transition: 0.2s; }
-        .btn-save:hover { background: #16a34a; transform: translateY(-2px); }
+        .btn-save { width: 100%; background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 1rem; margin-top: 25px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-save:hover { background: #15803d; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3); }
 
-        #loader { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); color: white; align-items: center; justify-content: center; z-index: 1000; font-size: 1.5rem; font-weight: bold; flex-direction: column; gap: 15px; }
-        .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); color: white; align-items: center; justify-content: center; z-index: 1000; font-size: 1.2rem; font-weight: 600; flex-direction: column; gap: 15px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.2); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
@@ -124,7 +160,7 @@
 
 <div id="loader">
     <div class="spinner"></div>
-    <div id="loader-text">Synchronizing with Database...</div>
+    <div id="loader-text">İşlem Yapılıyor...</div>
 </div>
 
 <div id="image-modal">
@@ -135,16 +171,16 @@
 <div class="container">
     <div class="nav-panel">
         <div class="nav-group">
-            <b>Database:</b>
+            <b>Veritabanı:</b>
             <select id="project-selector" onchange="handleProjectSelection()">
-                <option value="NEW">-- Create New Project Form --</option>
+                <option value="NEW">-- Yeni Değerlendirme Formu --</option>
             </select>
         </div>
         <div class="nav-group">
-            <b>ID:</b>
-            <input type="text" id="proj-no" placeholder="EVE-2026-001" style="max-width: 150px;">
-            <b>Title:</b>
-            <input type="text" id="proj-name" placeholder="Enter Proposal Title">
+            <b>Kurum/Birim ID:</b>
+            <input type="text" id="proj-no" placeholder="Örn: EGT-2026-01" style="max-width: 150px;">
+            <b>Program/Bölüm Adı:</b>
+            <input type="text" id="proj-name" placeholder="Değerlendirilen Program Adı">
         </div>
     </div>
 
@@ -153,16 +189,21 @@
         
         <aside class="sidebar">
             <div class="score-panel">
-                <h3 style="margin-top:0; color:#cbd5e1; font-size:1rem; text-transform:uppercase; letter-spacing:1px;">Total Score</h3>
+                <h3 style="margin-top:0; color:#cbd5e1; font-size:0.9rem; text-transform:uppercase;">Toplam Puan</h3>
                 <div class="grand-total" id="grand-total">0</div>
-                <div id="status-badge" class="status-badge" style="background: var(--danger);">FAILED</div>
+                <span class="total-max" id="total-max-lbl">/ 400 Puan</span>
+                <div id="status-badge" class="status-badge" style="background: var(--danger);">GELİŞTİRİLMELİ</div>
                 
                 <div id="summary-list" class="summary-list"></div>
                 
-                <button class="btn-save" onclick="saveToSheets()">SAVE & COMMIT TO DATABASE</button>
-                <button class="btn-save" style="background:#2563eb; margin-top:10px;" onclick="exportPDFProfessional()">
-    📄 EXPORT PDF REPORT
-</button>
+                <button class="btn-save" onclick="saveData()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                    KAYDET & AKTAR
+                </button>
+                <button class="btn-save" style="background:var(--accent); margin-top:12px;" onclick="exportPDF()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    PDF RAPORU AL
+                </button>
             </div>
         </aside>
     </div>
@@ -170,334 +211,863 @@
 
 <script>
 // ==========================================
-// 1. DATABASE URL
+// KENDİ WEB APP URL'Nİ BURAYA YAPIŞTIR
 // ==========================================
-const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbwXV_ftQaSCYDSJuMkfaVO08Akp5zilf-pjayXg0oF0ockJAAbKdoxIvaoJamb4PyrjGw/exec"; 
+const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbwaiafs0KmIzf__dVyKhPXl1k1J2wLuPZlrmqdSy76_El4Uiar9oxTKF1p6s4wEZbsUBw/exec";
+const IMGBB_API_KEY = "cbc42adcd1c112c6d5a9e92eaedc4c56";
+const IMGBB_UPLOAD_URL = "https://api.imgbb.com/1/upload";
 
-// Level-Specific Vocabulary
-const vocabularyByLevel = {
-    excellent: [
-        "exceptional", "outstanding", "exemplary", "superior", 
-        "highly credible", "comprehensive", "ambitious", "innovative",
-        "clearly defined", "well-articulated", "convincing evidence",
-        "extremely relevant", "very clear", "precisely specified",
-        "extremely well suited", "highly effective", "very profound",
-        "clear advances", "well above average"
-    ],
-    verygood: [
-        "strong", "well-articulated", "coherent", "sound",
-        "appropriate", "relevant", "realistic", "justified",
-        "clearly identified", "good quality", "thoughtful",
-        "credible", "convincing", "well-formulated",
-        "very well identified", "strong foundation", "carefully prepared"
-    ],
-    good: [
-        "adequate", "acceptable", "reasonable", "appropriate",
-        "general coherence", "some clarity", "mostly justified",
-        "identified but limited", "uneven detail", "adequate alignment",
-        "evident", "suitable", "generally adequate", "sufficient"
-    ],
-    fair: [
-        "partial", "limited", "incomplete", "somewhat unclear",
-        "insufficient detail", "generic", "weak justification",
-        "unclear approach", "minimal evidence", "unfocused",
-        "not well specified", "needs improvement", "inadequate support"
-    ],
-    poor: [
-        "insufficient", "minimal", "fails to describe", "unacceptable",
-        "inadequate", "not sound", "weak", "unclear",
-        "not specified", "overestimated", "unjustified",
-        "very weak", "does not meet requirements", "no significant impact",
-        "inappropriate", "limited clarity", "not evident"
-    ]
-};
+let currentAttachments = {};
+let activeEvidenceBox = null;
 
 const rubricData = [
     {
-        title: "1. Relevance", max: 30, threshold: 15,
+        title: "B.1. Program Tasarımı, Değerlendirmesi ve Güncellenmesi", maxWeight: 140, 
         items: [
-            { id: "1.1", name: "Link to Objectives and Thematic Areas", max: 7, guide: ["The application is relevant to the chosen general and specific objectives of the call.", "It is consistent with the requirements of the call and is clearly explained.", "The application addresses one of the thematic areas identified for this call."], levels: [{l:"Exc", r:[7], d:"Exceptional alignment with objectives."}, {l:"VG", r:[5,6], d:"Strong alignment with minor shortcomings."}, {l:"G", r:[3,4], d:"Adequate alignment, some aspects unjustified."}, {l:"P", r:[0,1,2], d:"Weak or partial alignment."}] },
-            { id: "1.2", name: "Needs Analysis", max: 7, guide: ["The application is based on an adequate analysis of challenges and needs.", "The different needs of the different partners have been identified and are well taken into account."], levels: [{l:"Exc", r:[7], d:"Comprehensive and evidence-based."}, {l:"VG", r:[5,6], d:"Clearly identified and connected."}, {l:"G", r:[3,4], d:"Adequate but lacks depth/evidence."}, {l:"P", r:[0,1,2], d:"Poorly identified."}] },
-            { id: "1.3", name: "Activities", max: 10, guide: ["The virtual exchanges are clearly defined and promote intercultural dialogue and soft skills development.", "They principally contribute to the educational, personal, or professional development of participants from third countries not associated with the Programme.", "The proposed activities have the potential to develop mutual trust and enhance cross-border cooperation.", "Evidence of the effectiveness of the proposed virtual exchange approach is provided."], levels: [{l:"Exc", r:[9,10], d:"Highly coherent and innovative."}, {l:"VG", r:[7,8], d:"Well designed, limited weaknesses."}, {l:"G", r:[5,6], d:"Generally appropriate, uneven detail."}, {l:"P", r:[0,1,2,3,4], d:"Unclear, weakly justified."}] },
-            { id: "1.4", name: "EU Values", max: 6, guide: ["The application is relevant to the respect and promotion of shared EU values, such as: Respect for human dignity, Freedom, Democracy, Equality, The rule of law, Respect for human rights. The application also supports fighting all forms of discrimination."], levels: [{l:"Exc", r:[6], d:"Explicitly and consistently embedded."}, {l:"VG", r:[4,5], d:"Clearly addressed, minor limitations."}, {l:"G", r:[2,3], d:"Mentioned but insufficiently operationalised."}, {l:"P", r:[0,1], d:"Limited or superficial."}] }
+            {
+                id: "B.1.1", name: "Programların tasarımı ve onayı",
+                levels: [
+                    "Kurumda programların tasarımı ve onayına ilişkin süreçler tanımlanmamıştır.",
+                    "Kurumda programların tasarımı ve onayına ilişkin ilke, yöntem, TYYÇ ile uyum ve paydaş katılımını içeren tanımlı süreçler bulunmaktadır.",
+                    "Kurumun genelinde, programlar, tanımlı süreçler doğrultusunda; programların amaç ve öğrenme çıktılarına uygun olarak yürütülmektedir.",
+                    "Programların tasarım ve onay süreçleri sistematik olarak izlenmekte ve ilgili paydaşlarla birlikte değerlendirilerek iyileştirilmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Program amaçları oluşturulmuştur", 
+                    "Program çıktıları tanımlanmıştır", 
+                    "TYYÇ uyumu gösterilmiştir", 
+                    "Program amaç ve çıktıları kamuoyuna ilan edilmiştir", 
+                    "Program yeterlilikleri belirlenirken kurumun misyon ve vizyonu dikkate alınmıştır", 
+                    "Ders bilgi paketleri varsa ulusal çekirdek program ve akreditasyon ölçütleri dikkate alınarak hazırlanmıştır", 
+                    "Kazanımlar bilişsel, duyuşsal ve devinimsel düzeyleri ifade etmektedir", 
+                    "Program çıktılarının gerçekleşmesinin nasıl izleneceği tanımlanmıştır", 
+                    "Kurumsal ortak çıktılar ile alan yeterliliklerinin değerlendirme yöntemi belirlenmiştir", 
+                    "Öğrenme çıktılarının yapılandırılmasına ilişkin bölüm bazlı ilke ve kurallar bulunmaktadır", 
+                    "Program yeterliliklerinin hangi eylemlerle kazandırılacağı belirlenmiştir", 
+                    "Yeterliliklerin örgün, karma ve uzaktan eğitimde nasıl kazandırılacağı tanımlıdır", 
+                    "Program tasarımında fiziksel ve teknolojik olanaklar dikkate alınmaktadır", 
+                    "Tanımlı süreçler kurum genelinde uygulanmaktadır", 
+                    "Program tasarım süreçleri izlenmektedir", 
+                    "İzleme sonuçlarına göre güncellemeler yapılmaktadır", 
+                    "Program tasarımı kurumsal kültüre dönüşmüştür", 
+                    "Kuruma özgü örnek gösterilebilir uygulamalar bulunmaktadır"
+                ]
+            },
+            {
+                id: "B.1.2", name: "Programın ders dağılım dengesi",
+                levels: [
+                    "Ders dağılımı dengesine ilişkin tanımlı süreçler tanımlanmamıştır.",
+                    "Ders dağılımına ilişkin; uzmanlık alanı, zorunlu-seçmeli, genel kültür boyutlarına yönelik ilke ve yöntemleri içeren tanımlı süreçler bulunmaktadır.",
+                    "Ders dağılımı dengesine ilişkin tanımlı süreçlere uygun olarak kurum genelinde uygulamalar bulunmaktadır.",
+                    "Programlarda ders dağılım dengesi izlenmekte ve iyileştirilmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Ders dağılımına ilişkin ilke, kural ve yöntemler tanımlıdır.", 
+                    "Ders dağılımında öğretim elemanlarının uzmanlık alanları dikkate alınmaktadır.", 
+                    "Zorunlu-seçmeli ders dengesi gözetilmektedir.", 
+                    "Alan ve alan dışı ders dengesi gözetilmektedir.", 
+                    "Kültürel derinlik ve farklı disiplinleri tanıma imkanı sağlanmaktadır.", 
+                    "Ders sayısı ve haftalık ders yükü öğrencinin akademik olmayan etkinliklerine zaman ayırmasına imkân verecek şekilde planlanmıştır.", 
+                    "Ders bilgi paketlerinin amaca uygunluğu ve işlerliği izlenmektedir.", 
+                    "Ders dağılımına ilişkin tanımlı süreçler kurum genelinde uygulanmaktadır.", 
+                    "Ders dağılım dengesi öğrenci, mezun ve dış paydaş görüşleriyle izlenmektedir.", 
+                    "İzleme sonuçlarına göre ders planlarında iyileştirme yapılmaktadır.", 
+                    "Ders dağılım dengesi uygulamaları kurum kültürü haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.1.3", name: "Ders kazanımlarının program çıktılarıyla uyumu",
+                levels: [
+                    "Ders kazanımları program çıktıları ile eşleştirilmemiştir.",
+                    "Ders kazanımlarının oluşturulması ve program çıktılarıyla uyumlu hale getirilmesine ilişkin ilke, yöntem ve sınıflamaları içeren tanımlı süreçler bulunmaktadır.",
+                    "Ders kazanımları programların genelinde program çıktılarıyla uyumlandırılmıştır ve ders bilgi paketleri ile paylaşılmaktadır.",
+                    "Ders kazanımlarının program çıktılarıyla uyumu izlenmekte ve iyileştirilmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Derslerin öğrenme kazanımları tanımlanmıştır.", 
+                    "Karma ve uzaktan eğitim dersleri için de öğrenme kazanımları tanımlanmıştır.", 
+                    "Program çıktıları ile ders kazanımları eşleştirilmiştir.", 
+                    "Ders kazanımları ve program çıktıları kamuoyuna ilan edilmiştir.", 
+                    "Ders kazanımları bilişsel, duyuşsal ve devinimsel seviyeleri ifade etmektedir.", 
+                    "Ders kazanımlarının gerçekleşmesinin nasıl izleneceği tanımlanmıştır.", 
+                    "Kurumsal ortak çıktılar ve alan yeterliliklerinin değerlendirme yöntemleri belirlenmiştir.", 
+                    "Ders kazanımlarının oluşturulması ve program çıktılarıyla uyumlu hale getirilmesine ilişkin ilke, yöntem ve sınıflamaları içeren süreçler tanımlanmıştır.", 
+                    "Ders kazanımları programların genelinde program çıktılarıyla uyumlandırılmıştır.", 
+                    "Ders bilgi paketleri kurum genelinde paylaşılmaktadır.", 
+                    "Program dışından alınan derslerin program çıktılarıyla uyumu sağlanmaktadır.", 
+                    "Ders kazanımlarının program çıktılarıyla uyumu izlenmektedir.", 
+                    "İzleme sonuçlarına göre iyileştirmeler yapılmaktadır.", 
+                    "Ders kazanımı-program çıktısı uyumu kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.1.4", name: "Öğrenci iş yüküne dayalı ders tasarımı",
+                levels: [
+                    "Dersler öğrenci iş yüküne dayalı olarak tasarlanmamıştır.",
+                    "Öğrenci iş yükünün hesaplanmasına ilişkin, staj ve hareketlilik gibi boyutları içeren tanımlı süreçler bulunmaktadır.",
+                    "Programlarda dersler öğrenci iş yüküne uygun olarak tasarlanmış, ilan edilmiş ve uygulamaya konulmuştur.",
+                    "Dersler öğrenci iş yüküne dayalı olarak izlenmekte ve buna göre ders tasarımı güncellenmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Derslerin AKTS değerleri belirlenmiştir.", 
+                    "AKTS hesaplama yöntemi tanımlanmıştır.", 
+                    "Öğrenci iş yükünün nasıl hesaplanacağı belirlenmiştir.", 
+                    "Staj, uygulama, proje ve saha çalışmaları iş yükü kapsamında değerlendirilmektedir.", 
+                    "Öğrenci hareketliliği (Erasmus vb.) ve kredi transfer süreçleri tanımlanmıştır.", 
+                    "Uzaktan ve karma eğitim dersleri için iş yükü hesaplamaları yapılmaktadır.", 
+                    "Öğrenci iş yüküne dayalı ders tasarımı programların genelinde uygulanmaktadır.", 
+                    "AKTS ve iş yükü bilgileri kamuoyuna ilan edilmiştir.", 
+                    "Öğrenci iş yükünün belirlenmesinde öğrenci katılımı sağlanmaktadır.", 
+                    "Öğrenci iş yükü düzenli olarak izlenmektedir.", 
+                    "İzleme sonuçlarına göre AKTS ve iş yükleri güncellenmektedir.", 
+                    "Uygulama kurum kültürü haline gelmiştir.", 
+                    "Kuruma özgü örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.1.5", name: "Programların izlenmesi ve güncellenmesi",
+                levels: [
+                    "Program çıktılarının izlenmesine ve güncellenmesine ilişkin mekanizma bulunmamaktadır.",
+                    "Program çıktılarının izlenmesine ve güncellenmesine ilişkin periyot, ilke, kural ve göstergeler oluşturulmuştur.",
+                    "Programların genelinde program çıktılarının izlenmesine ve güncellenmesine ilişkin mekanizmalar işletilmektedir.",
+                    "Program çıktıları bu mekanizmalar ile izlenmekte ve ilgili paydaşların görüşleri de alınarak güncellenmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Program amaçları ve öğrenme çıktılarının izlenmesine ilişkin mekanizma tanımlanmıştır.", 
+                    "Program çıktılarının izlenmesine ilişkin periyotlar belirlenmiştir.", 
+                    "Program çıktılarının değerlendirilmesine ilişkin ilke ve göstergeler belirlenmiştir.", 
+                    "Programların güncellenmesine ilişkin süreç tanımlanmıştır.", 
+                    "Program amaçları ve öğrenme çıktıları programların genelinde izlenmektedir.", 
+                    "Programların genelinde program güncelleme mekanizmaları işletilmektedir.", 
+                    "Eğitim-öğretime ilişkin göstergeler sistematik olarak takip edilmektedir.", 
+                    "Program çıktıları belirlenen mekanizmalarla düzenli olarak izlenmektedir.", 
+                    "Paydaş görüşleri program güncellemelerinde kullanılmaktadır.", 
+                    "İzleme sonuçlarına göre programlarda iyileştirme yapılmaktadır.", 
+                    "Program akreditasyonu kalite geliştirme amacıyla kullanılmaktadır.", 
+                    "Program izleme ve güncelleme süreçleri kurumsal kültür haline gelmiştir.", 
+                    "Akreditasyon ve program değerlendirme sonuçları kurumsal öğrenmeye dönüşmektedir.", 
+                    "Kuruma özgü örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.1.6", name: "Eğitim ve öğretim süreçlerinin yönetimi",
+                levels: [
+                    "Kurumda eğitim ve öğretim süreçlerini bütüncül olarak yönetmek üzere bir sistem bulunmamaktadır.",
+                    "Kurumda eğitim ve öğretim yönetim sistemine ilişkin ilke ve kurallar bulunmaktadır.",
+                    "Kurumun genelinde eğitim ve öğretim süreçleri belirlenmiş ilkelere uygun bütüncül olarak yönetilmektedir.",
+                    "Kurumda eğitim ve öğretim süreçleri izlenmekte ve izlem sonuçlarına göre iyileştirme yapılmaktadır.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Eğitim ve öğretim süreçlerini yönetmeye yönelik sistem bulunmaktadır.", 
+                    "Eğitim ve öğretim süreçlerine ilişkin organizasyonel yapı oluşturulmuştur.", 
+                    "Eğitim ve öğretim süreçlerinde görev ve sorumluluklar tanımlanmıştır.", 
+                    "Eğitim ve öğretim süreçlerine ilişkin ilke ve kurallar belirlenmiştir.", 
+                    "Eğitim ve öğretim faaliyetlerine ilişkin yıllık takvimler oluşturulmuştur.", 
+                    "Bilgi yönetim sistemi eğitim süreçlerini desteklemektedir.", 
+                    "Eğitim ve öğretim süreçleri kurum genelinde belirlenen ilke ve kurallara uygun yönetilmektedir.", 
+                    "Program tasarımı, yürütülmesi, değerlendirilmesi ve güncellenmesi süreçleri koordineli yürütülmektedir.", 
+                    "Öğretim yöntemi, öğrenme kazanımları ve ölçme-değerlendirme uyumu takip edilmektedir.", 
+                    "Eğitim ve öğretim yönetim sisteminin işleyişi düzenli olarak izlenmektedir.", 
+                    "İzleme sonuçlarına göre iyileştirmeler yapılmaktadır.", 
+                    "Eğitim ve öğretim süreçlerinin koordinasyonu üst yönetim tarafından etkin şekilde takip edilmektedir.", 
+                    "Eğitim ve öğretim süreçleri kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            }
         ]
     },
     {
-        title: "2. Quality of Project Design", max: 30, threshold: 15,
+        title: "B.2. Programların Yürütülmesi", maxWeight: 80,
         items: [
-            { id: "2.1", name: "Coherence", max: 6, guide: ["The overall project design ensures consistency between project objectives, methodology, activities, and the proposed budget.", "The application presents a coherent, realistic, and comprehensive set of appropriate activities to: Meet the identified needs and lead to the expected results"], levels: [{l:"Exc", r:[6], d:"Fully coherent and realistic."}, {l:"VG", r:[4,5], d:"Strong coherence."}, {l:"G", r:[2,3], d:"General coherence exists."}, {l:"F/P", r:[0,1], d:"Significant inconsistencies."}] },
-            { id: "2.2", name: "Methodology", max: 7, guide: ["The proposal demonstrates the quality and feasibility of the proposed methodology.", "The methodology is appropriate for addressing the identified needs, including those of the different partners. A clear concept has been developed for managing these different needs.", "The chosen pedagogical approach(es) are aligned with the identified needs."], levels: [{l:"Exc", r:[7], d:"Highly feasible and appropriate."}, {l:"VG", r:[5,6], d:"Strong and appropriate."}, {l:"G", r:[3,4], d:"Generally adequate."}, {l:"F/P", r:[0,1,2], d:"Weak, unclear, or unrealistic."}] },
-            { id: "2.3", name: "Learning Outcomes", max: 5, guide: ["Learning outcomes are evaluated and recognised (e.g. Youthpass).", "Learning outcomes are clearly defined before each virtual exchange activity.", "Outcomes are measured after each activity.", "Progress is recorded and achievements are recognised."], levels: [{l:"Exc", r:[5], d:"Clearly defined, monitored, recognised."}, {l:"VG", r:[4], d:"Well addressed, minor assessment weakness."}, {l:"G", r:[2,3], d:"Identified but insufficiently measured."}, {l:"F/P", r:[0,1], d:"Weakly defined."}] },
-            { id: "2.4", name: "Budget", max: 5, guide: ["The budget demonstrates cost effectiveness and value for money.", "There is coherence between: tasks, roles, and financial resources allocated to partners.", "The financial management arrangements are clear and appropriate."], levels: [{l:"Exc", r:[5], d:"Excellent value for money."}, {l:"VG", r:[4], d:"Realistic and generally coherent."}, {l:"G", r:[2,3], d:"Adequate but insufficiently justified."}, {l:"F/P", r:[0,1], d:"Unrealistic or poorly explained."}] },
-            { id: "2.5", name: "Evaluation", max: 7, guide: ["Specific measures for monitoring processes and deliverables (i.e. indicators of achievement and means of verification) ensure that the project implementation is of high quality.", "There is a clear quality assurance plan which also covers project management adequately.", "The monitoring strategy includes risk identification and a mitigating action plan."], levels: [{l:"Exc", r:[7], d:"Comprehensive and highly effective."}, {l:"VG", r:[5,6], d:"Strong with only minor gaps."}, {l:"G", r:[3,4], d:"Generally appropriate but limited."}, {l:"F/P", r:[0,1,2], d:"Weak or insufficiently developed."}] }
+            {
+                id: "B.2.1", name: "Öğretim yöntem ve teknikleri",
+                levels: [
+                    "Öğrenme-öğretme süreçlerinde öğrenci merkezli uygulamalar bulunmamaktadır.",
+                    "Öğrenci merkezli öğrenme-öğretme süreçlerinde uygulanmasına yönelik ilke, kural ve planlamalar bulunmaktadır.",
+                    "Programların genelinde öğrenci merkezli öğretim yöntem teknikleri tanımlı süreçler doğrultusunda uygulanmaktadır.",
+                    "Öğrenci merkezli yaklaşımın uygulamaları izlenmekte ve paydaşların katılımıyla iyileştirilmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Öğrenci merkezli öğretim yaklaşımına ilişkin ilke ve kurallar belirlenmiştir.", 
+                    "Öğrenci merkezli öğretim yöntemlerinin kullanımına ilişkin planlamalar yapılmıştır.", 
+                    "Aktif ve etkileşimli öğretim yöntemleri tanımlanmıştır.", 
+                    "Yetkinlik temelli öğretim yaklaşımı benimsenmiştir.", 
+                    "Uzaktan ve karma eğitim için öğretim yöntemleri tanımlanmıştır.", 
+                    "Öğrenci merkezli öğretim yöntemleri programların genelinde uygulanmaktadır.", 
+                    "Ders bilgi paketlerinde öğrenci merkezli yöntemler yer almaktadır.", 
+                    "Ters yüz öğrenme, proje tabanlı öğrenme, vaka analizi, problem temelli öğrenme gibi uygulamalar kullanılmaktadır.", 
+                    "Öğrencilerin araştırma süreçlerine katılımı desteklenmektedir.", 
+                    "Öğrenci merkezli uygulamalar izlenmektedir.", 
+                    "İç paydaş görüşleri doğrultusunda iyileştirmeler yapılmaktadır.", 
+                    "Öğretim yöntemlerinin etkililiği değerlendirilmektedir.", 
+                    "Öğrenci merkezli öğrenme kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir öğretim uygulamaları bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.2.2", name: "Ölçme ve değerlendirme",
+                levels: [
+                    "Kurumda öğrenci merkezli ölçme ve değerlendirme yaklaşımları bulunmamaktadır.",
+                    "Öğrenci merkezli ölçme ve değerlendirmeye ilişkin ilke, kural ve planlamalar bulunmaktadır.",
+                    "Programların genelinde öğrenci merkezli ölçme ve değerlendirme uygulamaları bulunmaktadır.",
+                    "Öğrenci merkezli ölçme ve değerlendirme uygulamaları izlenmekte ve ilgili iç paydaşların katılımıyla iyileştirilmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir, çeşitlendirilmiş ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Öğrenci merkezli ölçme ve değerlendirme yaklaşımı tanımlanmıştır.", 
+                    "Ölçme ve değerlendirmeye ilişkin ilke, kural ve planlamalar bulunmaktadır.", 
+                    "Ders kazanımlarına uygun ölçme araçları tanımlanmıştır.", 
+                    "Örgün, uzaktan ve karma eğitim türlerine uygun ölçme yöntemleri belirlenmiştir.", 
+                    "Öğrencilerin kendilerini ifade edebileceği alternatif ölçme araçları kullanılmaktadır.", 
+                    "Programların genelinde öğrenci merkezli ve çeşitlendirilmiş ölçme-değerlendirme uygulamaları kullanılmaktadır.", 
+                    "Çoklu ölçme araçları sistematik olarak uygulanmaktadır.", 
+                    "Ölçme araçları ders kazanımları ve program yeterlilikleriyle ilişkilendirilmektedir.", 
+                    "Sınav güvenliği mekanizmaları uygulanmaktadır.", 
+                    "Dezavantajlı gruplara yönelik ölçme-değerlendirme düzenlemeleri bulunmaktadır.", 
+                    "Öğrenci merkezli ölçme-değerlendirme uygulamaları izlenmektedir.", 
+                    "Öğrenci ve öğretim elemanı geri bildirimleri doğrultusunda iyileştirmeler yapılmaktadır.", 
+                    "Ölçme ve değerlendirme uygulamalarının tutarlılığı ve güvenirliği değerlendirilmektedir.", 
+                    "Ölçme-değerlendirme sistemi kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir ölçme-değerlendirme uygulamaları bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.2.3", name: "Öğrenci kabulü ve önceki öğrenmenin tanınması",
+                levels: [
+                    "Kurumda öğrenci kabulü, önceki öğrenmenin tanınması ve kredilendirilmesine ilişkin süreçler tanımlanmamıştır.",
+                    "Kurumda öğrenci kabulü, önceki öğrenmenin tanınması ve kredilendirilmesine ilişkin ilke, kural ve bağlı planlar bulunmaktadır.",
+                    "Kurumun genelinde öğrenci kabulü, önceki öğrenmenin tanınması ve kredilendirilmesine ilişkin planlar dahilinde uygulamalar bulunmaktadır.",
+                    "Öğrenci kabulü, önceki öğrenmenin tanınması ve kredilendirilmesine ilişkin süreçler izlenmekte, iyileştirilmekte ve güncellemeler ilan edilmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Öğrenci kabulüne ilişkin ilke ve kurallar tanımlanmıştır.", 
+                    "Önceki öğrenmenin tanınması ve kredilendirilmesine ilişkin ilke ve kurallar belirlenmiştir.", 
+                    "Diploma, sertifika ve belge süreçleri tanımlanmıştır.", 
+                    "Hareketlilik ve kredi transfer süreçleri tanımlanmıştır.", 
+                    "Öğrenci kabulü, tanınma ve kredilendirmeye ilişkin süreçler ilan edilmiştir.", 
+                    "Öğrenci kabulü ve tanınma süreçleri planlanan mekanizmalar doğrultusunda uygulanmaktadır.", 
+                    "Önceki öğrenmenin tanınmasına ilişkin uygulamalar bulunmaktadır.", 
+                    "Hareketlilik süreçlerinde kredi kaybını önleyici uygulamalar işletilmektedir.", 
+                    "Öğrenci kabulü, tanınma ve kredilendirme süreçleri izlenmektedir.", 
+                    "Süreçler paydaş geri bildirimleri doğrultusunda iyileştirilmektedir.", 
+                    "Güncellemeler ve değişiklikler kamuoyuna duyurulmaktadır.", 
+                    "Süreçler kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.2.4", name: "Yeterliliklerin sertifikalandırılması ve diploma",
+                levels: [
+                    "Kurumda diploma onayı ve diğer yeterliliklerin sertifikalandırılmasına ilişkin süreçler tanımlanmamıştır.",
+                    "Kurumda diploma onayı ve diğer yeterliliklerin sertifikalandırılmasına ilişkin kapsamlı, tutarlı ve ilan edilmiş ilke, kural ve süreçler bulunmaktadır.",
+                    "Kurumun genelinde diploma onayı ve diğer yeterliliklerin sertifikalandırılmasına ilişkin uygulamalar bulunmaktadır.",
+                    "Uygulamalar izlenmekte ve tanımlı süreçler iyileştirilmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Diploma onayı ve diğer yeterliliklerin sertifikalandırılmasına ilişkin süreçler tanımlanmıştır.", 
+                    "Mezuniyet koşulları açık ve anlaşılır şekilde belirlenmiştir.", 
+                    "Mezuniyet karar süreçleri tanımlanmıştır.", 
+                    "Diploma, diploma eki ve sertifika süreçleri kamuoyuna ilan edilmiştir.", 
+                    "Merkezi yerleştirme dışındaki öğrenci kabul türlerine ilişkin uygulama kriterleri tanımlanmıştır.", 
+                    "Diploma ve sertifikalandırma süreçleri kurum genelinde uygulanmaktadır.", 
+                    "Mezuniyet işlemleri tanımlı süreçlere uygun yürütülmektedir.", 
+                    "Öğrenci iş yüküne dayalı krediler hareketlilik programlarında tanınmaktadır.", 
+                    "Diploma ve sertifikalandırma süreçleri düzenli olarak izlenmektedir.", 
+                    "Süreçlere ilişkin geri bildirimler doğrultusunda iyileştirmeler yapılmaktadır.", 
+                    "Süreçlerde yapılan güncellemeler paydaşlarla paylaşılmaktadır.", 
+                    "Diploma ve sertifikalandırma sistemi kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            }
         ]
     },
     {
-        title: "3. Quality of Partnership", max: 20, threshold: 10,
+        title: "B.3. Öğrenme Kaynakları ve Destek Hizmetleri", maxWeight: 80,
         items: [
-            { id: "3.1", name: "Configuration", max: 8, guide: ["The partnership can ensure the full achievement of the project’s objectives.", "The consortium possesses all the necessary: Skills, Expertise, Experience, Knowledge in the areas covered by the project.", "Adequate allocation of time and input among partners is ensured.", "The skills and competences within the partnership are complementary."], levels: [{l:"Exc", r:[7,8], d:"Outstanding complementarity & expertise."}, {l:"VG", r:[5,6], d:"Strong and balanced partnership."}, {l:"G", r:[3,4], d:"Suitable but some expertise gaps exist."}, {l:"F/P", r:[0,1,2], d:"Weak composition."}] },
-            { id: "3.2", name: "Commitment", max: 5, guide: ["Each participating organisation demonstrates full involvement corresponding to its capacities and specific area of expertise."], levels: [{l:"Exc", r:[5], d:"Strong commitment & defined roles."}, {l:"VG", r:[4], d:"Substantial commitment."}, {l:"G", r:[2,3], d:"Evident but uneven across partners."}, {l:"F/P", r:[0,1], d:"Limited evidence of engagement."}] },
-            { id: "3.3", name: "Cooperation Arrangements", max: 7, guide: ["The cooperation arrangements are balanced.", "Effective mechanisms are proposed to ensure: coordination, decision-making, communication between participating organisations, stakeholders, any other relevant parties."], levels: [{l:"Exc", r:[7], d:"Highly effective arrangements."}, {l:"VG", r:[5,6], d:"Strong mechanisms."}, {l:"G", r:[3,4], d:"Generally appropriate."}, {l:"F/P", r:[0,1,2], d:"Weak or unclear."}] }
+            {
+                id: "B.3.1", name: "Öğrenme ortam ve kaynakları",
+                levels: [
+                    "Kurumun eğitim-öğretim faaliyetlerini sürdürebilmek için yeterli kaynağı bulunmamaktadır.",
+                    "Kurumun eğitim-öğretim faaliyetlerini sürdürebilmek için uygun nitelik ve nicelikte öğrenme kaynaklarının oluşturulmasına yönelik planları vardır.",
+                    "Kurumun genelinde öğrenme kaynaklarının yönetimi alana özgü koşullar, erişilebilirlik ve birimler arası denge gözetilerek gerçekleştirilmektedir.",
+                    "Öğrenme kaynaklarının geliştirilmesine ve kullanımına yönelik izleme ve iyileştirme yapılmaktadır.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Eğitim-öğretim faaliyetleri için gerekli öğrenme kaynakları tanımlanmıştır.", 
+                    "Öğrenme kaynaklarının geliştirilmesine yönelik planlamalar bulunmaktadır.", 
+                    "Öğrenme yönetim sistemi (LMS) bulunmaktadır.", 
+                    "Basılı ve elektronik kaynaklara erişim sağlanmaktadır.", 
+                    "Çevrimiçi öğrenme kaynakları öğrencilere sunulmaktadır.", 
+                    "Öğrenme kaynakları kurum genelinde erişilebilir ve kullanılmaktadır.", 
+                    "Öğrenme kaynakları alanların ihtiyaçlarına göre çeşitlendirilmiştir.", 
+                    "Öğrenme yönetim sistemi eğitim süreçlerinde aktif kullanılmaktadır.", 
+                    "Öğrenci-öğrenci, öğrenci-öğretim elemanı ve öğrenci-materyal etkileşimini destekleyen uygulamalar bulunmaktadır.", 
+                    "Öğrenme kaynaklarının kullanımı ve yeterliliği izlenmektedir.", 
+                    "Öğrenme kaynakları geri bildirimler doğrultusunda geliştirilmektedir.", 
+                    "LMS ve diğer öğrenme ortamlarının etkililiği değerlendirilmektedir.", 
+                    "Öğrenme ortamı ve kaynakları kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.3.2", name: "Akademik destek hizmetleri",
+                levels: [
+                    "Kurumda öğrencilerin akademik gelişimi ve kariyer planlamasına yönelik destek hizmetleri bulunmamaktadır.",
+                    "Kurumda öğrencilerin akademik gelişimi ve kariyer planlaması süreçlerine ilişkin tanımlı ilke ve kurallar bulunmaktadır.",
+                    "Kurumda öğrencilerin akademik gelişim ve kariyer planlamasına yönelik destek hizmetleri tanımlı ilke ve kurallar dahilinde yürütülmektedir.",
+                    "Kurumda öğrencilerin akademik gelişimi ve kariyer planlamasına ilişkin uygulamalar izlenmekte ve öğrencilerin katılımıyla iyileştirilmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Akademik danışmanlık sistemi tanımlanmıştır.", 
+                    "Öğrencilerin akademik gelişimi ve kariyer planlamasına yönelik destek süreçleri tanımlanmıştır.", 
+                    "Danışmanlara erişim mekanizmaları belirlenmiştir.", 
+                    "Psikolojik danışmanlık hizmetleri tanımlanmıştır.", 
+                    "Kariyer hizmetleri planlanmıştır.", 
+                    "Akademik danışmanlık hizmetleri kurum genelinde yürütülmektedir.", 
+                    "Akademik ve teknik öğrenci danışmanlığı mekanizmaları işletilmektedir.", 
+                    "Öğrencilerin danışmanlara erişimi sağlanmaktadır.", 
+                    "Kariyer merkezi hizmetleri aktif olarak yürütülmektedir.", 
+                    "Psikolojik danışmanlık hizmetleri erişilebilir durumdadır.", 
+                    "Akademik destek hizmetleri düzenli olarak izlenmektedir.", 
+                    "Öğrenci katılımı ve geri bildirimleri doğrultusunda iyileştirmeler yapılmaktadır.", 
+                    "Danışmanlık, kariyer ve psikolojik destek hizmetlerinin etkililiği değerlendirilmektedir.", 
+                    "Akademik destek hizmetleri kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.3.3", name: "Tesis ve altyapılar",
+                levels: [
+                    "Kurumda uygun nitelik ve nicelikte tesisler ve altyapı bulunmamaktadır.",
+                    "Kurumda uygun nitelik ve nicelikte tesis ve altyapının kurulmasına ve kullanımına ilişkin planlamalar bulunmaktadır.",
+                    "Kurumun genelinde tesis ve altyapı erişilebilirdir ve bunlardan fırsat eşitliğine dayalı olarak yararlanılmaktadır.",
+                    "Tesis ve altyapının kullanımı izlenmekte ve ihtiyaçlar doğrultusunda iyileştirilmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Eğitim-öğretim faaliyetlerini destekleyecek tesis ve altyapılar planlanmıştır.", 
+                    "Yemekhane, yurt, çalışma alanları, sağlık, ulaşım ve bilişim hizmetlerine yönelik planlamalar bulunmaktadır.", 
+                    "Uzaktan eğitim altyapısına yönelik planlamalar bulunmaktadır.", 
+                    "Tesis ve altyapının kullanımına ilişkin ilke ve kurallar tanımlanmıştır.", 
+                    "Tesis ve altyapılar kurum genelinde erişilebilir ve kullanılabilir durumdadır.", 
+                    "Öğrenciler tesis ve altyapılardan fırsat eşitliği temelinde yararlanmaktadır.", 
+                    "Uzaktan eğitim altyapısı eğitim faaliyetlerini desteklemektedir.", 
+                    "Tesis ve altyapıların kullanımı düzenli olarak izlenmektedir.", 
+                    "Öğrenci ihtiyaçları doğrultusunda iyileştirmeler yapılmaktadır.", 
+                    "Tesis ve altyapının yeterliliği paydaş görüşleriyle değerlendirilmektedir.", 
+                    "Tesis ve altyapı yönetimi kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.3.4", name: "Dezavantajlı gruplar",
+                levels: [
+                    "Kurumda dezavantajlı grupların eğitim olanaklarına erişimine ilişkin planlamalar bulunmamaktadır.",
+                    "Dezavantajlı grupların eğitim olanaklarına nitelikli ve adil erişimine ilişkin planlamalar bulunmaktadır.",
+                    "Dezavantajlı grupların eğitim olanaklarına erişimine yönelik uygulamalar yürütülmektedir.",
+                    "Dezavantajlı grupların eğitim olanaklarına erişimi izlenmekte ve grupların görüşleri alınarak iyileştirilmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Dezavantajlı grupların eğitim olanaklarına erişimine ilişkin planlamalar bulunmaktadır.", 
+                    "Dezavantajlı gruplara yönelik destek mekanizmaları tanımlanmıştır.", 
+                    "Engelsiz üniversite uygulamalarına yönelik planlamalar bulunmaktadır.", 
+                    "Uzaktan eğitim süreçlerinde erişilebilirlik ilkeleri belirlenmiştir.", 
+                    "Dezavantajlı gruplara yönelik uygulamalar kurum genelinde yürütülmektedir.", 
+                    "Eğitim olanaklarına erişimde fırsat eşitliği sağlanmaktadır.", 
+                    "Engelsiz üniversite uygulamaları aktif olarak işletilmektedir.", 
+                    "Uzaktan eğitim ortamları dezavantajlı grupların ihtiyaçlarını karşılayacak şekilde düzenlenmiştir.", 
+                    "Dezavantajlı grupların eğitim olanaklarına erişimi düzenli olarak izlenmektedir.", 
+                    "Dezavantajlı grupların görüşleri alınmakta ve iyileştirmelerde kullanılmaktadır.", 
+                    "Engelsiz üniversite uygulamaları düzenli olarak değerlendirilmekte ve geliştirilmektedir.", 
+                    "Dezavantajlı gruplara yönelik hizmetler kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir kapsayıcılık uygulamaları bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.3.5", name: "Sosyal, kültürel, sportif faaliyetler",
+                levels: [
+                    "Kurumda uygun nitelik ve nicelikte sosyal, kültürel ve sportif faaliyet olanakları bulunmamaktadır.",
+                    "Sosyal, kültürel ve sportif faaliyet olanaklarının yaratılmasına ilişkin planlamalar bulunmaktadır.",
+                    "Kurumun genelinde sosyal, kültürel ve sportif faaliyetler erişilebilirdir ve fırsat eşitliğine dayalı olarak yararlanılmaktadır.",
+                    "Sosyal, kültürel ve sportif faaliyet mekanizmaları izlenmekte, ihtiyaçlar doğrultusunda çeşitlendirilmekte ve iyileştirilmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Sosyal, kültürel ve sportif faaliyetlere ilişkin planlamalar bulunmaktadır.", 
+                    "Öğrenci topluluklarına yönelik destek mekanizmaları tanımlanmıştır.", 
+                    "Sosyal, kültürel ve sportif faaliyetleri yöneten idari yapı bulunmaktadır.", 
+                    "Faaliyetlere yönelik mekân, bütçe ve rehberlik desteği planlanmıştır.", 
+                    "Sosyal, kültürel ve sportif faaliyetler kurum genelinde yürütülmektedir.", 
+                    "Öğrenciler faaliyetlerden fırsat eşitliği temelinde yararlanmaktadır.", 
+                    "Öğrenci toplulukları aktif olarak faaliyet göstermektedir.", 
+                    "Sosyal, kültürel ve sportif faaliyetler çeşitlendirilmiş durumdadır.", 
+                    "Sosyal, kültürel ve sportif faaliyetler düzenli olarak izlenmektedir.", 
+                    "Öğrenci ihtiyaç ve talepleri doğrultusunda faaliyetler geliştirilmektedir.", 
+                    "Katılım ve geri bildirim düzeyleri değerlendirilmektedir.", 
+                    "Sosyal, kültürel ve sportif faaliyetler kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            }
         ]
     },
     {
-        title: "4. Impact", max: 20, threshold: 10,
+        title: "B.4. Öğretim Kadrosu", maxWeight: 100,
         items: [
-            { id: "4.1", name: "Dissemination", max: 5, guide: ["A clear awareness-raising, dissemination, and communication strategy is presented throughout the lifetime of the project.", "The strategy ensures outreach to: Relevant target groups, Stakeholders, the general public", "The strategy includes plans to make produced materials accessible through open licenses."], levels: [{l:"Exc", r:[5], d:"Comprehensive, targeted, sustainable."}, {l:"VG", r:[4], d:"Strong with minor limitations."}, {l:"G", r:[2,3], d:"Adequate but insufficiently detailed."}, {l:"F/P", r:[0,1], d:"Weak or unclear."}] },
-            { id: "4.2", name: "Exploitation", max: 5, guide: ["The application demonstrates that the selected virtual exchange approach(es) can be successfully disseminated.", "The project is expected to Create a wider impact and influence systemic change", "The exploitation approach is clearly described and the proposed measures for exploiting project results are potentially effective."], levels: [{l:"Exc", r:[5], d:"Highly credible systemic impact."}, {l:"VG", r:[4], d:"Convincing with minor weaknesses."}, {l:"G", r:[2,3], d:"Generally appropriate, limited ambition."}, {l:"F/P", r:[0,1], d:"Weakly developed."}] },
-            { id: "4.3", name: "Impact", max: 7, guide: ["The foreseeable impact, particularly for the identified target groups, is clearly defined.", "Measures are in place to ensure that the impact can be achieved and evaluated", "The results of the activities are likely to be significant.", "The project outcomes have the potential to support: Long-term changes, Improvements, Developments", "These outcomes benefit the target groups and relevant systems concerned.", "The application explains how the impact of learning outcomes through virtual exchange will be evaluated.", "The evaluation aims to provide data-informed recommendations to improve virtual exchange teaching and learning beyond the project."], levels: [{l:"Exc", r:[7], d:"Highly significant and measurable."}, {l:"VG", r:[5,6], d:"Clearly articulated and supported."}, {l:"G", r:[3,4], d:"Relevant but insufficiently evidenced."}, {l:"F/P", r:[0,1,2], d:"Vague or inadequately justified."}] },
-            
-            { id: "4.4", name: "Sustainability", max: 3, guide: ["The application includes appropriate measures and resources to ensure sustainability.", "The results and benefits of the project are intended to continue beyond the project lifetime."], levels: [{l:"Exc", r:[3], d:"Robust, realistic, adequately resourced."}, {l:"VG", r:[2], d:"Appropriately addressed."}, {l:"G", r:[1], d:"Generally appropriate, limited ambition."}, {l:"F/P", r:[0], d:"Weak or insufficiently detailed."}] }
+            {
+                id: "B.4.1", name: "Atama, yükseltme ve görevlendirme",
+                levels: [
+                    "Kurumun atama, yükseltme ve görevlendirme kriterleri tanımlanmamış.",
+                    "Kurumun atama yükseltme ve görevlendirme kriterleri tanımlanmış; ancak uygulama sonuçları irdelenmemiştir.",
+                    "Kurumun alanlar için tanımlı ve paydaşlarca bilinen atama, yükseltme ve görevlendirme kriterleri uygulanmakta ve karar almalarda kullanılmaktadır.",
+                    "Kurumun atama, yükseltme ve görevlendirme uygulamalarının sonuçları izlenmekte ve değerlendirilerek önlemler alınmaktadır.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Atama, yükseltme ve görevlendirme süreçleri tanımlanmıştır.", 
+                    "Akademik liyakat ve fırsat eşitliğini gözeten kriterler bulunmaktadır.", 
+                    "Ders görevlendirme ve ders yükü esasları belirlenmiştir.", 
+                    "Kurumun öğretim elemanlarından beklentileri tanımlanmıştır.", 
+                    "Kurum dışından görevlendirilen öğretim elemanlarının seçim kriterleri belirlenmiştir.", 
+                    "Atama, yükseltme ve görevlendirme kriterleri kurum genelinde uygulanmaktadır.", 
+                    "Ders görevlendirmelerinde uzmanlık alanı ile ders uyumu gözetilmektedir.", 
+                    "Ders yükü ve dağılım dengesi şeffaf biçimde uygulanmaktadır.", 
+                    "Kurum dışından görevlendirilen öğretim elemanlarının performansları değerlendirilmektedir.", 
+                    "Atama, yükseltme ve görevlendirme süreçleri düzenli olarak izlenmektedir.", 
+                    "Uygulama sonuçları değerlendirilerek iyileştirmeler yapılmaktadır.", 
+                    "Ders görevlendirmelerinde ortaya çıkan sorunlar analiz edilerek önlemler alınmaktadır.", 
+                    "Atama ve görevlendirme sistemi kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir insan kaynakları uygulamaları bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.4.2", name: "Öğretim yetkinlikleri ve gelişimi",
+                levels: [
+                    "Kurumda öğretim elemanlarının öğretim yetkinliğini geliştirmek üzere planlamalar bulunmamaktadır.",
+                    "Kurumun öğretim elemanlarının; öğrenci merkezli öğrenme, uzaktan eğitim, ölçme değerlendirme, materyal geliştirme gibi alanlardaki yetkinliklerinin geliştirilmesine ilişkin planlar bulunmaktadır.",
+                    "Kurumun genelinde öğretim elemanlarının öğretim yetkinliğini geliştirmek üzere uygulamalar vardır.",
+                    "Öğretim yetkinliğini geliştirme uygulamalarından elde edilen bulgular izlenmekte ve öğretim elemanları ile birlikte irdelenerek önlemler alınmaktadır.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Öğretim elemanlarının öğretim yetkinliğini geliştirmeye yönelik planlamalar bulunmaktadır.", 
+                    "Öğrenci merkezli öğrenme, ölçme-değerlendirme ve uzaktan eğitim alanlarında gelişim planları oluşturulmuştur.", 
+                    "Öğretim elemanlarının pedagojik ve teknolojik yetkinliklerini geliştirmeye yönelik mekanizmalar bulunmaktadır.", 
+                    "Öğrenme-öğretme merkezi veya benzeri bir yapı bulunmaktadır.", 
+                    "Öğretim yetkinliği geliştirme uygulamaları kurum genelinde yürütülmektedir.", 
+                    "Uzaktan eğitim ve dijital öğretim yetkinlikleri geliştirilmektedir.", 
+                    "Öğretim elemanları öğrenci merkezli öğretim yöntemleri konusunda desteklenmektedir.", 
+                    "Öğretim elemanlarının eğitime katılımı teşvik edilmektedir.", 
+                    "Öğretim yetkinliği geliştirme faaliyetleri düzenli olarak izlenmektedir.", 
+                    "Öğretim elemanlarından alınan geri bildirimler doğrultusunda iyileştirmeler yapılmaktadır.", 
+                    "Öğretim yetkinliği geliştirme performansı değerlendirilmektedir.", 
+                    "Öğretim elemanları izleme ve iyileştirme süreçlerine katılmaktadır.", 
+                    "Öğretim yetkinliği geliştirme sistemi kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            },
+            {
+                id: "B.4.3", name: "Eğitim faaliyetlerine yönelik teşvik ve ödüllendirme",
+                levels: [
+                    "Teşvik ve ödüllendirme mekanizmaları bulunmamaktadır.",
+                    "Teşvik ve ödüllendirme mekanizmalarının yetkinlik temelli, adil ve şeffaf biçimde oluşturulmasına yönelik planlar bulunmaktadır.",
+                    "Teşvik ve ödül uygulamaları kurum geneline yayılmıştır.",
+                    "Teşvik ve ödül uygulamaları izlenmekte ve iyileştirilmektedir.",
+                    "İçselleştirilmiş, sistematik, sürdürülebilir ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ],
+                checks: [
+                    "Eğitim-öğretim faaliyetlerini teşvik etmeye yönelik mekanizmalar bulunmaktadır.", 
+                    "Eğitim faaliyetlerinin değerlendirilmesine yönelik kriterler belirlenmiştir.", 
+                    "Eğitim faaliyetleri atama ve yükseltme süreçlerinde dikkate alınmaktadır.", 
+                    "Teşvik ve ödüllendirme mekanizmaları adil ve şeffaf biçimde tanımlanmıştır.", 
+                    "Eğitim faaliyetlerine yönelik teşvik ve ödüllendirme uygulamaları kurum genelinde yürütülmektedir.", 
+                    "Yenilikçi öğretim uygulamaları görünür ve desteklenir durumdadır.", 
+                    "Eğitim başarısını ödüllendiren uygulamalar yaygın biçimde kullanılmaktadır.", 
+                    "Eğitim faaliyetlerine yönelik teşvik mekanizmaları düzenli olarak izlenmektedir.", 
+                    "Öğretim elemanlarından alınan geri bildirimler doğrultusunda iyileştirmeler yapılmaktadır.", 
+                    "Teşvik ve ödüllendirme sisteminin etkililiği değerlendirilmektedir.", 
+                    "Eğitim faaliyetlerine yönelik teşvik sistemi kurumsal kültür haline gelmiştir.", 
+                    "Kuruma özgü ve örnek gösterilebilir uygulamalar bulunmaktadır."
+                ]
+            }
         ]
     }
 ];
 
-let currentNewImages = {}; // Keeps track of new links before saving
-let loadedImageUrls = {};  // Keeps track of saved links from DB
-
-// Accordion (Açılır/Kapanır) Fonksiyonu
-function toggleSection(idx) {
-    const body = document.getElementById(`section-body-${idx}`);
-    const chevron = document.getElementById(`chevron-${idx}`);
-    if (body.style.display === 'none') {
-        body.style.display = 'block';
-        chevron.innerText = '▼';
-    } else {
-        body.style.display = 'none';
-        chevron.innerText = '▶';
+function addLinkToSelection() {
+    const url = prompt("Seçili metne eklenecek bağlantıyı (URL) girin:\nÖrn: https://huzem.hitit.edu.tr/belge", "https://");
+    if (url && url !== "https://") {
+        document.execCommand('createLink', false, url);
+        
+        const selection = window.getSelection();
+        if (selection.focusNode && selection.focusNode.parentNode.tagName === 'A') {
+            selection.focusNode.parentNode.setAttribute('target', '_blank');
+            selection.focusNode.parentNode.setAttribute('rel', 'noopener noreferrer');
+        }
     }
 }
 
 function init() {
     const main = document.getElementById('main-content');
     const summaryList = document.getElementById('summary-list');
-    main.innerHTML = ''; summaryList.innerHTML = '';
+    main.innerHTML = '';
+    summaryList.innerHTML = '';
 
-    const criterionDisplayNames = [
-        "Relevance",
-        "Quality of Project Design",
-        "Quality of Partnership",
-        "Impact"
-    ];
+    if (window.location.protocol === 'file:') {
+        alert('UYARI: Bu sayfayı doğrudan dosyadan (file://) açtığınız için uzak Google Apps Script sunucusuna erişim sorunları yaşayabilirsiniz. Lütfen mümkünse sayfayı yerel bir HTTP sunucusu üzerinden açın (örneğin Live Server veya python -m http.server).');
+    }
     
     rubricData.forEach((sec, sIdx) => {
         const secDiv = document.createElement('div');
         secDiv.className = 'section-card';
         
-        // Sadece ilk bölüm açık gelsin, diğerleri kapalı olsun
-        const isDefaultOpen = (sIdx === 0);
-        
-        let htmlContent = `
-            <div class="section-header" onclick="toggleSection(${sIdx})">
-                <div class="section-title">
-                    <span class="chevron" id="chevron-${sIdx}">${isDefaultOpen ? '▼' : '▶'}</span>
-                    ${sec.title}
-                </div>
-                <div class="section-meta">
-                    <div class="word-limit" id="limit-${sIdx}">Characters: 0 / 4000</div>
-                    <div class="section-score" id="sec-total-${sIdx}">0 / ${sec.max}</div>
-                </div>
+        secDiv.innerHTML = `
+            <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <div class="section-title"><span class="toggle-icon">▼</span> ${sec.title}</div>
+                <div class="section-score" id="sec-total-${sIdx}">0 / ${sec.maxWeight} Puan</div>
             </div>
-            <div class="section-body" id="section-body-${sIdx}" style="display: ${isDefaultOpen ? 'block' : 'none'};">
-        `;
+            <div class="section-body" id="sec-body-${sIdx}"></div>`;
+
+        const secBody = secDiv.querySelector('.section-body');
 
         sec.items.forEach((item) => {
-            const cleanId = item.id.replace('.','-');
+            const cleanId = item.id.replace(/\./g, '-');
+            
             let btns = '';
-            for(let i=0; i<=item.max; i++) {
-                let cls = getScoreColorClass(i, item.levels);
-                btns += `<button class="btn-score" id="btn-${cleanId}-${i}" onclick="selectScore(this, ${sIdx}, '${item.id}', ${i})">${i}</button>`;
+            for(let i=1; i<=5; i++) {
+                btns += `<button class="btn-score" id="btn-${cleanId}-${i}" onclick="selectScore('${cleanId}', ${i})">${i}</button>`;
             }
 
-            htmlContent += `
-                <div class="sub-item">
-                    <div class="sub-title">${item.id} ${item.name}</div>
-                    
-                    <div class="score-buttons" id="btn-group-${cleanId}">${btns}</div>
-                    
-                    <table class="rubric-table">
-                        <tr><th>Excellent</th><th>Very Good</th><th>Good</th><th>Fair/Poor</th></tr>
-                        <tr>
-                            <td><b>${item.levels[0].r.join(', ')} Pts</b>${item.levels[0].d}</td>
-                            <td><b>${item.levels[1].r.join(', ')} Pts</b>${item.levels[1].d}</td>
-                            <td><b>${item.levels[2].r.join(', ')} Pts</b>${item.levels[2].d}</td>
-                            <td><b>${item.levels[3].r.join(', ')} Pts</b>${item.levels[3].d}</td>
-                        </tr>
-                    </table>
-                    
-                    <div class="guide-box">
-                        <b>Guiding Points:</b> 
-                        <ul>${item.guide.map(g => `<li>${g}</li>`).join('')}</ul>
+            let checkHtml = item.checks.map((chk, cIdx) => `
+                <div class="check-item">
+                    <div class="check-text">${chk}</div>
+                    <div class="likert-group">
+                        <input type="radio" name="L-${cleanId}-${cIdx}" id="L-${cleanId}-${cIdx}-1" value="1" onchange="calculateSuggestion('${cleanId}')">
+                        <label for="L-${cleanId}-${cIdx}-1">1</label>
+                        <input type="radio" name="L-${cleanId}-${cIdx}" id="L-${cleanId}-${cIdx}-2" value="2" onchange="calculateSuggestion('${cleanId}')">
+                        <label for="L-${cleanId}-${cIdx}-2">2</label>
+                        <input type="radio" name="L-${cleanId}-${cIdx}" id="L-${cleanId}-${cIdx}-3" value="3" onchange="calculateSuggestion('${cleanId}')">
+                        <label for="L-${cleanId}-${cIdx}-3">3</label>
+                        <input type="radio" name="L-${cleanId}-${cIdx}" id="L-${cleanId}-${cIdx}-4" value="4" onchange="calculateSuggestion('${cleanId}')">
+                        <label for="L-${cleanId}-${cIdx}-4">4</label>
+                        <input type="radio" name="L-${cleanId}-${cIdx}" id="L-${cleanId}-${cIdx}-5" value="5" onchange="calculateSuggestion('${cleanId}')">
+                        <label for="L-${cleanId}-${cIdx}-5">5</label>
                     </div>
-                    
-                    <div class="vocab-container" id="vocab-container-${cleanId}">
-                        <div class="vocab-title">Suggested Vocabulary for your score:</div>
-                        <div class="vocab-list" id="vocab-list-${cleanId}"></div>
-                    </div>
-                    
-                    <textarea class="comment-area" id="comment-${cleanId}" placeholder="Enter form evaluation for ${item.id}..." oninput="calculate()"></textarea>
-                    
-                    <div class="evidence-box">
-                        <label>Add Evidence Link (URL to PDF, Image, Document, or Website):</label>
-                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                            <input type="url" id="url-input-${cleanId}" placeholder="https://..." style="flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: 6px; outline: none;">
-                            <button type="button" onclick="addEvidenceLink('${item.id}')" style="background: var(--accent); color: white; border: none; padding: 0 15px; border-radius: 6px; font-weight: bold; cursor: pointer;">Add Link</button>
-                        </div>
-                        <div class="preview-container" id="preview-container-${cleanId}" style="display: flex; flex-direction: column; gap: 8px;"></div>
-                    </div>
+                </div>
+            `).join('');
 
-                    <input type="hidden" class="score-val" data-sec="${sIdx}" id="val-${cleanId}" value="0">
+            secBody.innerHTML += `
+                <div class="sub-item collapsed">
+                    <div class="sub-title" onclick="this.parentElement.classList.toggle('collapsed')">
+                        <span class="toggle-icon">▼</span> ${item.id} ${item.name}
+                    </div>
+                    
+                    <div class="sub-body">
+                        <div class="interactive-panel">
+                            <div class="checklist-container">
+                                <h4><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/></svg> Alt Ölçüt Değerlendirme Listesi (1-5 Puan):</h4>
+                                ${checkHtml}
+                            </div>
+                            <div class="suggestion-box" id="sugg-box-${cleanId}">
+                                <div class="sugg-label">Sistem Önerisi</div>
+                                <div class="sugg-value" id="sugg-val-${cleanId}">-</div>
+                                <button class="btn-apply-sugg" onclick="applySuggestion('${cleanId}')">Önerilen Puanı Uygula</button>
+                            </div>
+                        </div>
+
+                        <div class="score-buttons" id="btn-group-${cleanId}">${btns}</div>
+                        
+                        <table class="rubric-table" id="rubric-${cleanId}">
+                            <tr><th>Seviye 1</th><th>Seviye 2</th><th>Seviye 3</th><th>Seviye 4</th><th>Seviye 5</th></tr>
+                            <tr>
+                                <td id="cell-${cleanId}-1"><b>1 Puan</b>${item.levels[0]}</td>
+                                <td id="cell-${cleanId}-2"><b>2 Puan</b>${item.levels[1]}</td>
+                                <td id="cell-${cleanId}-3"><b>3 Puan</b>${item.levels[2]}</td>
+                                <td id="cell-${cleanId}-4"><b>4 Puan</b>${item.levels[3]}</td>
+                                <td id="cell-${cleanId}-5"><b>5 Puan</b>${item.levels[4]}</td>
+                            </tr>
+                        </table>
+                        
+                        <div class="rte-container">
+                            <div class="rte-toolbar">
+                                <button type="button" class="rte-btn" onclick="document.execCommand('bold',false,null)" title="Kalın"><b>B</b></button>
+                                <button type="button" class="rte-btn" onclick="document.execCommand('italic',false,null)" title="İtalik"><i>I</i></button>
+                                <button type="button" class="rte-btn" onclick="addLinkToSelection()" title="Seçili metne tıklanabilir bağlantı ekle">🔗 Link Ekle</button>
+                                <button type="button" class="rte-btn" onclick="document.execCommand('unlink',false,null)" title="Bağlantıyı kaldır">🚫 Linki Sil</button>
+                            </div>
+                            <div class="comment-area" id="comment-${cleanId}" contenteditable="true" data-placeholder="Değerlendirme gerekçenizi buraya yazınız..."></div>
+                        </div>
+                        
+                        <div class="evidence-box" id="evidence-box-${cleanId}">
+                            <label id="evidence-label-${cleanId}">Kanıt Dosyası (PDF/Görsel) veya URL Ekle — Dosya seçin ya da Ctrl+V ile yapıştırın:</label>
+                            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                <input type="text" id="url-input-${cleanId}" placeholder="https://..." style="flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: 6px; outline: none;">
+                                <button type="button" onclick="addEvidenceLink('${cleanId}')" style="background: var(--accent); color: white; border: none; padding: 0 15px; border-radius: 6px; font-weight: bold; cursor: pointer;">URL Ekle</button>
+                            </div>
+                            <input type="file" multiple accept="image/png,image/jpeg,application/pdf" onchange="handleFileUpload(this, '${cleanId}')">
+                            <div class="preview-container" id="preview-container-${cleanId}"></div>
+                        </div>
+
+                        <input type="hidden" class="score-val" id="val-${cleanId}" value="0">
+                    </div>
                 </div>`;
         });
         
-        htmlContent += `</div>`; // section-body kapanışı
-        secDiv.innerHTML = htmlContent;
         main.appendChild(secDiv);
-        
-        summaryList.innerHTML += `<div class="summary-row"><span>${sIdx + 1}. ${criterionDisplayNames[sIdx]}</span> <b id="sum-${sIdx}" style="font-size:1.1rem">0 / ${sec.max}</b></div>`;
+        summaryList.innerHTML += `<div class="summary-row"><span>${sec.title.split('.')[0] + '.' + sec.title.split('.')[1]} Alanı</span> <b id="sum-${sIdx}">0 / ${sec.maxWeight}</b></div>`;
     });
 
     const overall = document.createElement('div');
     overall.className = 'section-card';
     overall.style.background = '#f8fafc';
     overall.innerHTML = `
-        <div class="section-title" style="margin-bottom:20px;">Final Conclusions</div>
+        <div class="section-title" style="margin-bottom:25px;">Kurul / Komisyon Kararı ve Genel Değerlendirme</div>
         
-        <div style="margin-bottom:20px">
-            <label style="font-weight:600; display:block; margin-bottom:8px">Evaluation Summary (Conclusion): <br><small style="color:#64748b; font-weight:normal">(Approximately 3-5 lines + summarize assessment conclusions)</small></label>
-            <textarea class="comment-area" id="overall-summary" placeholder="Executive Summary..."></textarea>
-        </div>
-        
-        <div style="margin-bottom:20px">
-            <label style="font-weight:600; display:block; margin-bottom:8px">Main Strengths: <br><small style="color:#64748b; font-weight:normal">(Approximately 3-5 bullet points)</small></label>
-            <textarea class="comment-area" id="overall-strengths" style="min-height:90px" placeholder="- Point 1&#10;- Point 2"></textarea>
-        </div>
-        
-        <div style="margin-bottom:20px">
-            <label style="font-weight:600; display:block; margin-bottom:8px">Main Weaknesses: <br><small style="color:#64748b; font-weight:normal">(Approximately 3-5 bullet points)</small></label>
-            <textarea class="comment-area" id="overall-weaknesses" style="min-height:90px" placeholder="- Point 1&#10;- Point 2"></textarea>
-        </div>
-
-        <div style="margin-top:40px; border-top:2px solid var(--border); padding-top:25px;">
-            <h3 style="margin-top:0; color:var(--primary); font-size:1.3rem;">Feedback to the Evaluation Committee</h3>
-            
-            <div style="display:flex; gap:25px; flex-wrap:wrap; margin-bottom:25px;">
-                <div class="hybrid-group">
-                    <h4 style="margin-top:0; color:var(--accent); border-bottom:1px solid var(--border); padding-bottom:8px;">1. Eligibility Checks</h4>
-                    
-                    <div class="hybrid-item"><span>Relevant type of organisation as Coordinator?</span><select id="chk-coord"><option value="YES">YES</option><option value="NO">NO</option></select></div>
-                    <div class="hybrid-item"><span>Partners comply with composition rules?</span><select id="chk-partners"><option value="YES">YES</option><option value="NO">NO</option></select></div>
-                    <div class="hybrid-item"><span>Activities take place in participating countries?</span><select id="chk-activities"><option value="YES">YES</option><option value="NO">NO</option></select></div>
-                    
-                    <label style="font-size:0.85rem; color:#64748b; margin-top:15px; display:block;"><b>Qualitative Notes (If any issues):</b></label>
-                    <textarea class="comment-area" id="chk-eligNotes" style="min-height:60px; margin-top:5px; padding:10px;" placeholder="Add eligibility comments..."></textarea>
+        <div style="margin-bottom:25px">
+            <label style="font-weight:700; display:block; margin-bottom:8px; color:var(--primary)">Genel Değerlendirme Özeti:</label>
+            <div class="rte-container">
+                <div class="rte-toolbar">
+                    <button type="button" class="rte-btn" onclick="document.execCommand('bold',false,null)"><b>B</b></button>
+                    <button type="button" class="rte-btn" onclick="document.execCommand('italic',false,null)"><i>I</i></button>
+                    <button type="button" class="rte-btn" onclick="addLinkToSelection()">🔗 Link Ekle</button>
+                    <button type="button" class="rte-btn" onclick="document.execCommand('unlink',false,null)">🚫 Linki Sil</button>
                 </div>
-
-                <div class="hybrid-group">
-                    <h4 style="margin-top:0; color:var(--accent); border-bottom:1px solid var(--border); padding-bottom:8px;">2. Completeness & Funding Rules</h4>
-                    
-                    <label style="font-size:0.9rem; font-weight:600; display:block; margin-bottom:5px;">Completeness Checks:</label>
-                    <label style="font-size:0.8rem; color:#64748b; display:block; margin-bottom:10px;">(Please add if the proposal is over 40 pages, uses a different template, or if sections are missing)</label>
-                    <textarea class="comment-area" id="chk-completenessText" style="min-height:70px; margin-bottom:20px; padding:10px;" placeholder="Write completeness issues here..."></textarea>
-                    
-                    <label style="font-size:0.9rem; font-weight:600; display:block; margin-bottom:10px;">Funding Rules:</label>
-                    <div class="hybrid-item"><span>200 EUR per participant rule respected?</span><select id="chk-eur200"><option value="YES">YES</option><option value="NO">NO</option></select></div>
-                    <div class="hybrid-item"><span>95% co-financing rate applied?</span><select id="chk-perc95"><option value="YES">YES</option><option value="NO">NO</option></select></div>
-                    
-                    <label style="font-size:0.85rem; color:#64748b; margin-top:10px; display:block;"><b>Funding Notes:</b></label>
-                    <textarea class="comment-area" id="chk-fundingNotes" style="min-height:50px; margin-top:5px; padding:10px;" placeholder="Additional funding notes..."></textarea>
-                </div>
+                <div class="comment-area" id="overall-summary" contenteditable="true" data-placeholder="Programın eğitim-öğretim kalitesine ilişkin genel görüş..."></div>
             </div>
+        </div>
 
-            <div style="display:flex; align-items:center; justify-content:space-between; background:white; padding:20px; border-radius:12px; border:2px solid var(--border)">
-                <div>
-                    <div style="font-weight:800; color:var(--primary); font-size:1.1rem;">Financial Shortcomings / Budget Re-shuffle Needed?</div>
-                    <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">(Select YES if the budget requires adjustments based on your evaluation)</div>
+        <div style="margin-bottom:25px">
+            <label style="font-weight:700; display:block; margin-bottom:8px; color:#166534">Kurumun Güçlü Yönleri:</label>
+            <div class="rte-container" style="border-color:#bbf7d0;">
+                <div class="rte-toolbar" style="background:#f0fdf4; border-color:#bbf7d0;">
+                    <button type="button" class="rte-btn" onclick="document.execCommand('bold',false,null)"><b>B</b></button>
+                    <button type="button" class="rte-btn" onclick="document.execCommand('italic',false,null)"><i>I</i></button>
+                    <button type="button" class="rte-btn" onclick="addLinkToSelection()">🔗 Link Ekle</button>
                 </div>
-                <select id="budget-check" style="padding:10px 20px; border-radius:8px; border:2px solid var(--border); font-weight:800; outline:none; cursor:pointer; font-size:1rem;">
-                    <option value="NO">NO - Budget is reasonable</option>
-                    <option value="YES">YES - Adjustments needed</option>
-                </select>
+                <div class="comment-area" id="overall-strengths" style="min-height:90px; background:#f0fdf4;" contenteditable="true" data-placeholder="- İyi uygulama örneği..."></div>
+            </div>
+        </div>
+
+        <div>
+            <label style="font-weight:700; display:block; margin-bottom:8px; color:#991b1b">Gelişmeye Açık Yönleri:</label>
+            <div class="rte-container" style="border-color:#fecaca;">
+                <div class="rte-toolbar" style="background:#fef2f2; border-color:#fecaca;">
+                    <button type="button" class="rte-btn" onclick="document.execCommand('bold',false,null)"><b>B</b></button>
+                    <button type="button" class="rte-btn" onclick="document.execCommand('italic',false,null)"><i>I</i></button>
+                    <button type="button" class="rte-btn" onclick="addLinkToSelection()">🔗 Link Ekle</button>
+                </div>
+                <div class="comment-area" id="overall-weaknesses" style="min-height:90px; background:#fef2f2;" contenteditable="true" data-placeholder="- İyileştirme alanı..."></div>
             </div>
         </div>
     `;
     main.appendChild(overall);
 
+    calculateTotal();
     loadProjectList();
 }
 
-// Yeni: Sadece URL Kanıt Eklemek İçin Fonksiyon
-function addEvidenceLink(itemId) {
-    const cleanId = itemId.replace('.', '-');
+function handleFileUpload(input, cleanId) {
+    if (!currentAttachments[cleanId]) currentAttachments[cleanId] = [];
+
+    Array.from(input.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (file.type.startsWith('image/')) {
+                const attachment = {
+                    type: 'image',
+                    title: file.name,
+                    src: e.target.result,
+                    url: null,
+                    status: IMGBB_API_KEY && !IMGBB_API_KEY.includes('BURAYA') ? 'uploading' : 'pending'
+                };
+                currentAttachments[cleanId].push(attachment);
+                renderPreviews(cleanId);
+
+                if (IMGBB_API_KEY && !IMGBB_API_KEY.includes('BURAYA')) {
+                    uploadImageToImgbb(attachment, cleanId);
+                }
+            } else if (file.type === 'application/pdf') {
+                const attachment = {
+                    type: 'pdf',
+                    title: file.name,
+                    src: e.target.result,
+                    url: null,
+                    status: 'uploading'
+                };
+                currentAttachments[cleanId].push(attachment);
+                renderPreviews(cleanId);
+                uploadFileToDrive(attachment, cleanId, file.type);
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function uploadImageToImgbb(attachment, cleanId) {
+    const base64 = attachment.src.split(',')[1] || '';
+    const params = new URLSearchParams();
+    params.append('key', IMGBB_API_KEY);
+    params.append('image', base64);
+    params.append('name', attachment.title.replace(/\.[^/.]+$/, ''));
+
+    fetch(IMGBB_UPLOAD_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params.toString()
+    })
+    .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    })
+    .then(data => {
+        if (data && data.success && data.data && data.data.url) {
+            attachment.url = data.data.url;
+            attachment.status = 'done';
+        } else {
+            attachment.status = 'error';
+            console.error('imgbb upload error', data);
+        }
+        renderPreviews(cleanId);
+    })
+    .catch(err => {
+        attachment.status = 'error';
+        console.error('imgbb upload failed', err);
+        renderPreviews(cleanId);
+    });
+}
+
+function uploadFileToDrive(attachment, cleanId, mimeType) {
+    const base64 = attachment.src.split(',')[1] || '';
+    const fileEntry = {
+        fileName: attachment.title,
+        mimeType: mimeType,
+        data: base64
+    };
+
+    fetch(`${GOOGLE_APP_URL}?action=uploadFile`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(fileEntry)
+    })
+    .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    })
+    .then(data => {
+        if (data && data.status === 'success' && data.url) {
+            attachment.url = data.url;
+            attachment.status = 'done';
+        } else {
+            attachment.status = 'error';
+            console.error('Drive upload error', data);
+        }
+        renderPreviews(cleanId);
+    })
+    .catch(err => {
+        attachment.status = 'error';
+        console.error('Drive upload failed', err);
+        renderPreviews(cleanId);
+    });
+}
+
+function addEvidenceLink(cleanId) {
     const input = document.getElementById(`url-input-${cleanId}`);
     let url = input.value.trim();
-    
     if (!url) return;
-    
-    // URL doğrulaması (http/https ekle)
+
     if (!/^https?:\/\//i.test(url)) {
         url = 'https://' + url;
     }
 
-    if (!currentNewImages[cleanId]) currentNewImages[cleanId] = [];
-    currentNewImages[cleanId].push(url);
-    input.value = ''; // Kutuyu temizle
+    const title = prompt('Bu bağlantı için bir isim girin:', url) || url;
+    if (!currentAttachments[cleanId]) currentAttachments[cleanId] = [];
+    currentAttachments[cleanId].push({
+        type: 'url',
+        title: title,
+        url: url,
+        src: url,
+        status: 'done'
+    });
+    input.value = '';
     renderPreviews(cleanId);
 }
 
-// Önizlemeleri Gösterme Fonksiyonu (Resim ve Link Ayrımıyla)
 function renderPreviews(cleanId) {
     const container = document.getElementById(`preview-container-${cleanId}`);
     container.innerHTML = '';
-    
-    // Veritabanından Gelen Eski Linkleri Render Et
-    if (loadedImageUrls[cleanId]) {
-        loadedImageUrls[cleanId].forEach((url, idx) => {
-            container.appendChild(createEvidenceElement(url, cleanId, idx, true));
-        });
-    }
 
-    // Yeni Eklenen Linkleri Render Et
-    if (currentNewImages[cleanId]) {
-        currentNewImages[cleanId].forEach((url, idx) => {
-            container.appendChild(createEvidenceElement(url, cleanId, idx, false));
+    if (currentAttachments[cleanId]) {
+        currentAttachments[cleanId].forEach((attachment, idx) => {
+            const wrap = document.createElement('div');
+            wrap.style.cssText = "display: flex; flex-direction: column; gap: 8px; background: white; border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-size: 0.85rem; width: 100%; box-sizing: border-box;";
+
+            const isImage = attachment.type === 'image';
+            const isPdf = attachment.type === 'pdf';
+
+            const displayUrl = attachment.url || attachment.src;
+            let previewHtml = '';
+            if (isImage) {
+                previewHtml = `<div style="display:flex; align-items:center; gap:10px;">
+                                   <img src="${displayUrl}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; border:1px solid #ccc; cursor:pointer;" onclick="openModal('${displayUrl}')" title="Görüntülemek için tıkla">
+                                   <strong style="color: var(--accent);">${escapeHtml(attachment.title || 'Resim')}</strong>
+                               </div>`;
+            } else if (isPdf) {
+                previewHtml = `<div style="display:flex; align-items:center; gap:10px;">
+                                   <span style="font-size:24px;">📄</span>
+                                   <a href="${displayUrl}" target="_blank" download="${escapeHtml(attachment.title || 'belge.pdf')}" style="color: var(--accent); text-decoration: none; font-weight: 600;">${escapeHtml(attachment.title || 'PDF Belgesi')}</a>
+                               </div>`;
+            } else {
+                previewHtml = `<div style="display:flex; align-items:center; gap:10px; flex-wrap: wrap;">
+                                   <span style="font-size:24px;">🔗</span>
+                                   <a href="${displayUrl}" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 600;">${escapeHtml(attachment.title || displayUrl)}</a>
+                               </div>`;
+            }
+
+            const statusText = attachment.status === 'uploading'
+                ? '<span style="color: #2563eb; font-size:0.8rem;">Yükleniyor...</span>'
+                : attachment.status === 'error'
+                ? '<span style="color: #dc2626; font-size:0.8rem;">Yükleme hatası</span>'
+                : '';
+
+            wrap.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 0;">${previewHtml}${statusText ? `<div>${statusText}</div>` : ''}</div>
+                    <button type="button" onclick="removeAttachment('${cleanId}', ${idx})" style="background: var(--danger); color: white; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-weight: bold; font-size: 0.75rem;">SİL</button>
+                </div>
+                <input type="text" value="${escapeHtml(attachment.title || '')}" onchange="updateAttachmentTitle('${cleanId}', ${idx}, this.value)" placeholder="Ek adı girin" style="width:100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; outline: none;" />
+            `;
+
+            container.appendChild(wrap);
         });
     }
 }
 
-// Yardımcı: Render Edilecek Elementi Oluşturur (Resim/İkon tespiti)
-function createEvidenceElement(url, cleanId, idx, isSaved) {
-    const wrap = document.createElement('div');
-    wrap.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem;";
-    
-    // URL'nin sonu resim uzantısı mı kontrol et (Örn: .jpg, .png)
-    const isImage = /\.(jpeg|jpg|gif|png|webp|bmp)(\?.*)?$/i.test(url);
-    
-    let displayHtml = '';
-    if (isImage) {
-        displayHtml = `<div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
-                           <img src="${url}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; border:1px solid #ccc; cursor:pointer;" onclick="openModal('${url}')" title="Click to view">
-                           <a href="${url}" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 200px;" title="${url}">${url}</a>
-                       </div>`;
-    } else {
-        // Resim değilse standart sayfa/PDF ikonu göster
-        displayHtml = `<div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
-                           <span style="font-size:24px;">📄</span>
-                           <a href="${url}" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 250px;" title="${url}">${url}</a>
-                       </div>`;
-    }
-
-    let actionHtml = isSaved 
-        ? `<span style="color: var(--success); font-weight: bold; font-size: 0.75rem; padding-left:10px;">SAVED</span>`
-        : `<button type="button" onclick="removeNewImage('${cleanId}', ${idx})" style="background: var(--danger); color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-weight: bold; font-size: 0.75rem; flex-shrink:0; margin-left:10px;">REMOVE</button>`;
-
-    wrap.innerHTML = displayHtml + actionHtml;
-    return wrap;
-}
-
-function removeNewImage(cleanId, idx) {
-    currentNewImages[cleanId].splice(idx, 1);
+function removeAttachment(cleanId, idx) {
+    currentAttachments[cleanId].splice(idx, 1);
     renderPreviews(cleanId);
+}
+
+function updateAttachmentTitle(cleanId, idx, title) {
+    if (currentAttachments[cleanId] && currentAttachments[cleanId][idx]) {
+        currentAttachments[cleanId][idx].title = title;
+    }
 }
 
 function openModal(src) {
@@ -509,96 +1079,283 @@ function closeModal() {
     document.getElementById('image-modal').style.display = 'none';
 }
 
-function getScoreColorClass(s, lvls) {
-    if(lvls[0].r.includes(s)) return 'excellent';
-    if(lvls[1].r.includes(s)) return 'verygood';
-    if(lvls[2].r.includes(s)) return 'good';
-    if(lvls[3].r.includes(s)) return 'fair';
-    return 'poor';
+function calculateSuggestion(cleanId) {
+    const container = document.getElementById(`btn-group-${cleanId}`).parentElement;
+    const checkedRadios = container.querySelectorAll('.likert-group input[type="radio"]:checked');
+    
+    if(checkedRadios.length === 0) {
+        const suggBox = document.getElementById(`sugg-box-${cleanId}`);
+        suggBox.classList.remove('active');
+        document.getElementById(`sugg-val-${cleanId}`).innerText = '-';
+        return;
+    }
+    
+    let sum = 0;
+    checkedRadios.forEach(r => sum += parseInt(r.value));
+    let avg = sum / checkedRadios.length;
+    let suggestedScore = Math.round(avg);
+
+    const suggBox = document.getElementById(`sugg-box-${cleanId}`);
+    const suggValText = document.getElementById(`sugg-val-${cleanId}`);
+    
+    suggBox.dataset.suggested = suggestedScore;
+    suggValText.innerText = suggestedScore;
+    suggBox.classList.add('active');
 }
 
-function selectScore(btn, sIdx, itemId, score) {
-    let cleanId = itemId.replace('.', '-');
+function applySuggestion(cleanId) {
+    const box = document.getElementById(`sugg-box-${cleanId}`);
+    const score = parseInt(box.dataset.suggested);
+    if(score >= 1 && score <= 5) {
+        selectScore(cleanId, score);
+    }
+}
+
+function selectScore(cleanId, score) {
     const group = document.getElementById(`btn-group-${cleanId}`);
+    if(!group) return;
     group.querySelectorAll('.btn-score').forEach(b => b.className = 'btn-score');
     
-    // Find item and its level for this score
-    const item = rubricData[sIdx].items.find(it => it.id === itemId);
-    const level = item.levels.find(lvl => lvl.r.includes(score));
-    const cls = getScoreColorClass(score, item.levels);
+    const clsObj = {5: 'lv5', 4: 'lv4', 3: 'lv3', 2: 'lv2', 1: 'lv1'};
+    const btn = document.getElementById(`btn-${cleanId}-${score}`);
+    if(btn) btn.className = `btn-score active ${clsObj[score]}`;
     
-    btn.className = `btn-score active ${cls}`;
-    document.getElementById(`val-${cleanId}`).value = score;
+    const valInput = document.getElementById(`val-${cleanId}`);
+    if(valInput) valInput.value = score;
     
-    let vocabContainer = document.getElementById(`vocab-container-${cleanId}`);
-    let vocabList = document.getElementById(`vocab-list-${cleanId}`);
+    const table = document.getElementById(`rubric-${cleanId}`);
+    if(table) {
+        table.querySelectorAll('td').forEach(td => td.classList.remove('selected-level'));
+        const cell = document.getElementById(`cell-${cleanId}-${score}`);
+        if(score > 0 && cell) {
+            cell.classList.add('selected-level');
+        }
+    }
     
-    vocabContainer.style.display = 'block';
-    
-    // Map level label to vocabulary key
-    const levelMap = {
-        "Exc": "excellent",
-        "VG": "verygood",
-        "G": "good",
-        "F": "fair",
-        "P": "poor"
-    };
-    const vocabKey = levelMap[level.l] || "fair";
-    const vocab = vocabularyByLevel[vocabKey] || [];
-    const isPositive = ['excellent', 'verygood', 'good'].includes(vocabKey);
-    
-    vocabList.innerHTML = vocab.map(w => `<span class="vocab-tag ${isPositive ? 'pos' : 'neg'}">${w}</span>`).join('');
+    const evBox = document.getElementById(`evidence-box-${cleanId}`);
+    const evLabel = document.getElementById(`evidence-label-${cleanId}`);
+    if(evBox && evLabel) {
+        const colors = {
+            5: { border: '#16a34a', bg: '#f0fdf4', text: '#166534' }, 
+            4: { border: '#84cc16', bg: '#ecfccb', text: '#3f6212' }, 
+            3: { border: '#0284c7', bg: '#e0f2fe', text: '#0369a1' }, 
+            2: { border: '#d97706', bg: '#fef3c7', text: '#92400e' }, 
+            1: { border: '#dc2626', bg: '#fef2f2', text: '#991b1b' }  
+        };
+        
+        if(score > 0) {
+            evBox.style.borderColor = colors[score].border;
+            evBox.style.backgroundColor = colors[score].bg;
+            evLabel.innerHTML = `<span style="display:inline-block; padding:2px 8px; border-radius:4px; background:${colors[score].border}; color:white;">Seviye ${score}</span> &nbsp;Bu Puana Ait Kanıt (PDF/Görsel/URL) Ekle:`;
+            evLabel.style.color = colors[score].text;
+        } else {
+            evBox.style.borderColor = '#94a3b8';
+            evBox.style.backgroundColor = '#f8fafc';
+            evLabel.innerHTML = `Kanıt Dosyası (PDF/Görsel) veya URL Ekle:`;
+            evLabel.style.color = 'var(--primary)';
+        }
+    }
 
-    calculate();
+    calculateTotal();
 }
 
-function calculate() {
+function calculateTotal() {
     let grand = 0;
     rubricData.forEach((sec, sIdx) => {
-        let secTotal = 0;
-        let secChars = 0;
+        let rawTotal = 0;
+        let rawMax = sec.items.length * 5; 
         
         sec.items.forEach(item => {
-            let valId = item.id.replace('.','-');
-            secTotal += parseInt(document.getElementById(`val-${valId}`).value) || 0;
-            let txt = document.getElementById(`comment-${valId}`).value.trim();
-            secChars += txt ? txt.length : 0;
+            let valId = item.id.replace(/\./g, '-');
+            const valEl = document.getElementById(`val-${valId}`);
+            rawTotal += valEl ? (parseInt(valEl.value) || 0) : 0;
         });
 
-        document.getElementById(`sec-total-${sIdx}`).innerText = `${secTotal} / ${sec.max}`;
-        let limitBadge = document.getElementById(`limit-${sIdx}`);
-        limitBadge.innerText = `Characters: ${secChars} / 4000`;
-        limitBadge.style.color = secChars > 4000 ? 'var(--danger)' : '#64748b';
-        limitBadge.style.background = secChars > 4000 ? '#fee2e2' : '#f1f5f9';
+        let weightedScore = Math.round((rawTotal / rawMax) * sec.maxWeight);
 
-        let sumText = document.getElementById(`sum-${sIdx}`);
-        sumText.innerText = `${secTotal} / ${sec.max}`;
-        sumText.style.color = secTotal >= sec.threshold ? 'var(--success)' : 'var(--danger)';
+        const secEl = document.getElementById(`sec-total-${sIdx}`);
+        if(secEl) secEl.innerText = `${weightedScore} / ${sec.maxWeight} Puan`;
         
-        grand += secTotal;
+        let sumText = document.getElementById(`sum-${sIdx}`);
+        if(sumText) {
+            sumText.innerText = `${weightedScore} / ${sec.maxWeight}`;
+            sumText.style.color = weightedScore >= (sec.maxWeight * 0.6) ? '#4ade80' : '#f87171';
+        }
+        
+        grand += weightedScore;
     });
 
-    document.getElementById('grand-total').innerText = grand;
+    const grandEl = document.getElementById('grand-total');
+    if(grandEl) grandEl.innerText = grand;
+    
     const badge = document.getElementById('status-badge');
-    badge.innerText = grand >= 60 ? "PASSED" : "FAILED";
-    badge.style.background = grand >= 60 ? "var(--success)" : "var(--danger)";
+    if(badge) {
+        if(grand >= 300) { badge.innerText = "YÜKSEK KALİTE STANDARDI"; badge.style.background = "var(--success)"; }
+        else if(grand >= 200) { badge.innerText = "YETERLİ / İZLENMELİ"; badge.style.background = "var(--warning)"; }
+        else { badge.innerText = "CİDDİ İYİLEŞTİRME GEREKİYOR"; badge.style.background = "var(--danger)"; }
+    }
 }
 
-function loadProjectList() {
-    fetch(GOOGLE_APP_URL + "?action=getList")
-    .then(res => res.json())
-    .then(list => {
-        const sel = document.getElementById('project-selector');
-        sel.innerHTML = '<option value="NEW">-- Create New Project Form --</option>';
-        list.forEach(id => {
-            if(id) { 
-                const opt = document.createElement('option');
-                opt.value = id; opt.innerText = id; 
-                sel.appendChild(opt);
+function saveData() {
+    const projNo = document.getElementById('proj-no').value.trim();
+    if(!projNo) {
+        alert("Sisteme kaydetmek için lütfen Kurum/Birim ID'si giriniz!");
+        document.getElementById('proj-no').focus();
+        return;
+    }
+
+    if (!GOOGLE_APP_URL || GOOGLE_APP_URL.includes("BURAYA_KENDİ_WEB_APP_URL_Nİ_YAPIŞTIR")) {
+        alert("Lütfen HTML içindeki GOOGLE_APP_URL kısmına kendi Apps Script Web App linkinizi yapıştırın!");
+        return;
+    }
+
+    document.getElementById('loader-text').innerText = "Veritabanına Kaydediliyor...";
+    document.getElementById('loader').style.display = "flex";
+
+    let payload = {
+        projectNumber: projNo,
+        projectName: document.getElementById('proj-name').value.trim(),
+        grandTotal: document.getElementById('grand-total').innerText,
+        status: document.getElementById('status-badge').innerText,
+        overall: {
+            summary: compressIfUseful(sanitizeCommentHTML(document.getElementById('overall-summary').innerHTML)),
+            strengths: compressIfUseful(sanitizeCommentHTML(document.getElementById('overall-strengths').innerHTML)),
+            weaknesses: compressIfUseful(sanitizeCommentHTML(document.getElementById('overall-weaknesses').innerHTML))
+        },
+        details: {}
+    };
+
+    let attachmentProblem = null;
+
+    rubricData.forEach((sec) => {
+        sec.items.forEach(item => {
+            let cleanId = item.id.replace(/\./g, '-');
+            const valEl = document.getElementById(`val-${cleanId}`);
+            const commEl = document.getElementById(`comment-${cleanId}`);
+            
+            const rawAttachments = currentAttachments[cleanId] || [];
+            const pendingAttachment = rawAttachments.find(att => {
+                if (att.type !== 'image' && att.type !== 'pdf') return false;
+                const isDone = att.status === 'done' || (typeof att.status === 'undefined' && !!att.url);
+                return !isDone;
+            });
+            if (pendingAttachment) {
+                attachmentProblem = `Lütfen tüm dosya yüklemelerinin tamamlanmasını bekleyin. (${item.id} içindeki ${pendingAttachment.title || 'bir ek'})`;
+            }
+
+            payload.details[item.id] = {
+                score: valEl ? (parseInt(valEl.value) || 0) : 0,
+                comment: commEl ? compressIfUseful(sanitizeCommentHTML(commEl.innerHTML)) : "",
+                checks: [],
+                attachments: rawAttachments
+                    .filter(att => att.url && (att.status === 'done' || typeof att.status === 'undefined'))
+                    .map(att => ({ type: att.type, title: att.title, url: att.url }))
+            };
+            
+            for(let i=0; i<item.checks.length; i++) {
+                let radio = document.querySelector(`input[name="L-${cleanId}-${i}"]:checked`);
+                payload.details[item.id].checks.push(radio ? parseInt(radio.value) : 0);
+            }
+        });
+    });
+
+    let payloadString = JSON.stringify(payload);
+
+    const oversizedFields = [];
+    const checkField = (key, value) => {
+        const length = String(value || '').length;
+        if (length > 50000) oversizedFields.push({ key, length });
+    };
+
+    checkField('projectNumber', payload.projectNumber);
+    checkField('projectName', payload.projectName);
+    checkField('overall.summary', payload.overall.summary);
+    checkField('overall.strengths', payload.overall.strengths);
+    checkField('overall.weaknesses', payload.overall.weaknesses);
+
+    Object.keys(payload.details).forEach(id => {
+        const entry = payload.details[id];
+        checkField(`${id}.comment`, entry.comment);
+        if (entry.attachments && Array.isArray(entry.attachments)) {
+            entry.attachments.forEach((attach, idx) => {
+                checkField(`${id}.attachments[${idx}].title`, attach.title);
+                checkField(`${id}.attachments[${idx}].url`, attach.url);
+            });
+        }
+    });
+
+    if (attachmentProblem) {
+        document.getElementById('loader').style.display = 'none';
+        alert(`⚠️ Dosya eklerinde sorun var: ${attachmentProblem}`);
+        return;
+    }
+
+    if (oversizedFields.length > 0) {
+        document.getElementById('loader').style.display = 'none';
+        const largest = oversizedFields.sort((a, b) => b.length - a.length).slice(0, 4);
+        const details = largest.map(item => `• ${item.key}: ${item.length} karakter`).join('\n');
+        alert(`⚠️ HATA: Kaydetmek istediğiniz verinin bazı alanları Google Sheets hücre sınırını aşıyor!\n\nEn büyük alanlar:\n${details}\n\nGoogle Sheets her hücre için maksimum 50.000 karakter destekler. Lütfen uzun yorumları birkaç küçük paragrafa bölerek kaydetmeyi deneyin.`);
+        return;
+    }
+
+    fetch(GOOGLE_APP_URL, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+            'Accept': 'application/json'
+        },
+        body: payloadString
+    })
+    .then(response => {
+        document.getElementById('loader').style.display = "none";
+        if (response.type === 'opaque') {
+            alert("Veri sunucuya gönderildi. CORS kısıtlaması nedeniyle sunucudan gelen yanıt okunamadı. Sunucudaki kaydı kontrol edin.");
+            return;
+        }
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`Sunucu hatası ${response.status}: ${text || response.statusText}`);
+            });
+        }
+        return response.text().then(text => {
+            try {
+                return JSON.parse(text);
+            } catch (parseErr) {
+                throw new Error(`Beklenmeyen yanıt formatı: ${text}`);
             }
         });
     })
-    .catch(err => console.log("List fetch error", err));
+    .then(res => {
+        if (!res) return;
+        if (res.status === 'success') {
+            alert(res.message);
+            loadProjectList();
+        } else {
+            alert("Veritabanı Hatası: " + (res.message || JSON.stringify(res)));
+        }
+    })
+    .catch(err => {
+        document.getElementById('loader').style.display = "none";
+        console.error('Kayıt hatası:', err);
+        alert("Ağ Hatası: Sunucuya ulaşılamadı veya beklenmeyen yanıt alındı.\n\nDetay: " + err.message);
+    });
+}
+
+function loadProjectList() {
+    if (!GOOGLE_APP_URL || GOOGLE_APP_URL.includes("BURAYA_KENDİ_WEB_APP_URL_Nİ_YAPIŞTIR")) return;
+
+    fetch(GOOGLE_APP_URL + "?action=getList", { mode: 'cors', cache: 'no-cache', credentials: 'omit' })
+    .then(res => res.json())
+    .then(list => {
+        const sel = document.getElementById('project-selector');
+        sel.innerHTML = '<option value="NEW">-- Yeni Değerlendirme Formu --</option>';
+        list.forEach(id => {
+            const opt = document.createElement('option');
+            opt.value = id; opt.innerText = id;
+            sel.appendChild(opt);
+        });
+    })
+    .catch(err => console.log("Veritabanı liste çekme hatası: ", err));
 }
 
 function handleProjectSelection() {
@@ -606,331 +1363,437 @@ function handleProjectSelection() {
     if (val === "NEW") {
         document.getElementById('proj-no').value = '';
         document.getElementById('proj-name').value = '';
-        
-        document.getElementById('overall-summary').value = '';
-        document.getElementById('overall-strengths').value = '';
-        document.getElementById('overall-weaknesses').value = '';
-        document.getElementById('budget-check').value = 'NO';
-        
-        document.getElementById('chk-coord').value = 'YES';
-        document.getElementById('chk-partners').value = 'YES';
-        document.getElementById('chk-activities').value = 'YES';
-        document.getElementById('chk-eligNotes').value = '';
-        
-        document.getElementById('chk-completenessText').value = '';
-        document.getElementById('chk-eur200').value = 'YES';
-        document.getElementById('chk-perc95').value = 'YES';
-        document.getElementById('chk-fundingNotes').value = '';
+        document.getElementById('overall-summary').innerHTML = '';
+        document.getElementById('overall-strengths').innerHTML = '';
+        document.getElementById('overall-weaknesses').innerHTML = '';
         
         document.querySelectorAll('.btn-score').forEach(b => b.className = 'btn-score');
         document.querySelectorAll('.score-val').forEach(v => v.value = '0');
-        document.querySelectorAll('.comment-area').forEach(t => t.value = '');
-        document.querySelectorAll('.vocab-container').forEach(c => c.style.display = 'none');
+        document.querySelectorAll('.comment-area').forEach(t => t.innerHTML = '');
+        document.querySelectorAll('.suggestion-box').forEach(b => { b.classList.remove('active'); b.dataset.suggested = "0"; });
+        document.querySelectorAll('.sugg-value').forEach(v => v.innerText = "-");
+        document.querySelectorAll('.likert-group input[type="radio"]').forEach(r => r.checked = false);
+        document.querySelectorAll('.rubric-table td').forEach(td => td.classList.remove('selected-level'));
         
-        // Akordeon menüleri sıfırlayıp sadece ilkini açık yapalım
-        rubricData.forEach((sec, sIdx) => {
-            const body = document.getElementById(`section-body-${sIdx}`);
-            const chevron = document.getElementById(`chevron-${sIdx}`);
-            if (body && chevron) {
-                body.style.display = sIdx === 0 ? 'block' : 'none';
-                chevron.innerText = sIdx === 0 ? '▼' : '▶';
-            }
+        document.querySelectorAll('.evidence-box').forEach(b => {
+            b.style.backgroundColor = '#f8fafc';
+            b.style.borderColor = '#94a3b8';
+            let lbl = b.querySelector('label');
+            if(lbl) { lbl.innerHTML = 'Kanıt Dosyası (PDF/Görsel) veya URL Ekle:'; lbl.style.color = 'var(--primary)'; }
         });
         
-        currentNewImages = {};
-        loadedImageUrls = {};
+        currentAttachments = {};
         document.querySelectorAll('.preview-container').forEach(c => c.innerHTML = '');
         
-        calculate();
+        calculateTotal();
     } else {
         loadProjectData(val);
     }
 }
 
 function loadProjectData(projNo) {
-    document.getElementById('loader-text').innerText = "Loading Project Data...";
+    document.getElementById('loader-text').innerText = "Kayıt Veritabanından Yükleniyor...";
     document.getElementById('loader').style.display = "flex";
-    
-    fetch(`${GOOGLE_APP_URL}?action=load&projNo=${encodeURIComponent(projNo)}`)
+
+    fetch(`${GOOGLE_APP_URL}?action=load&projNo=${encodeURIComponent(projNo)}`, { mode: 'cors', cache: 'no-cache', credentials: 'omit' })
     .then(res => res.json())
-    .then(data => {
+    .then(res => {
         document.getElementById('loader').style.display = "none";
-        
-        if(data.status === 'success') {
+        if(res.status === 'success') {
+            const data = res.data;
             document.getElementById('proj-no').value = data.projectNumber;
             document.getElementById('proj-name').value = data.projectName;
-            
-            if(data.overall) {
-                document.getElementById('overall-summary').value = data.overall.summary || "";
-                document.getElementById('overall-strengths').value = data.overall.strengths || "";
-                document.getElementById('overall-weaknesses').value = data.overall.weaknesses || "";
-                document.getElementById('budget-check').value = data.overall.budgetCheck || "NO";
-                
-                if(data.overall.checks) {
-                    document.getElementById('chk-coord').value = data.overall.checks.coord || 'YES';
-                    document.getElementById('chk-partners').value = data.overall.checks.partners || 'YES';
-                    document.getElementById('chk-activities').value = data.overall.checks.activities || 'YES';
-                    document.getElementById('chk-eligNotes').value = data.overall.checks.eligNotes || '';
-                    document.getElementById('chk-completenessText').value = data.overall.checks.completenessText || '';
-                    document.getElementById('chk-eur200').value = data.overall.checks.eur200 || 'YES';
-                    document.getElementById('chk-perc95').value = data.overall.checks.perc95 || 'YES';
-                    document.getElementById('chk-fundingNotes').value = data.overall.checks.fundingNotes || '';
-                }
+            document.getElementById('overall-summary').innerHTML = sanitizeCommentHTML(decompressIfNeeded(data.overall.summary || ""));
+            document.getElementById('overall-strengths').innerHTML = sanitizeCommentHTML(decompressIfNeeded(data.overall.strengths || ""));
+            document.getElementById('overall-weaknesses').innerHTML = sanitizeCommentHTML(decompressIfNeeded(data.overall.weaknesses || ""));
+
+            document.querySelectorAll('.likert-group input[type="radio"]').forEach(r => r.checked = false);
+            document.querySelectorAll('.suggestion-box').forEach(b => { b.classList.remove('active'); b.dataset.suggested = "0"; });
+            document.querySelectorAll('.sugg-value').forEach(v => v.innerText = "-");
+
+            currentAttachments = {};
+            document.querySelectorAll('.preview-container').forEach(c => c.innerHTML = '');
+
+            if(data.details) {
+                Object.keys(data.details).forEach(id => {
+                    let cleanId = id.replace(/\./g, '-');
+                    let det = data.details[id];
+
+                    let commentBox = document.getElementById(`comment-${cleanId}`);
+                    if(commentBox) commentBox.innerHTML = sanitizeCommentHTML(decompressIfNeeded(det.comment || ""));
+                    
+                    if(det.checks) {
+                        det.checks.forEach((val, cIdx) => {
+                            if(val > 0) {
+                                let radio = document.getElementById(`L-${cleanId}-${cIdx}-${val}`);
+                                if(radio) radio.checked = true;
+                            }
+                        });
+                        calculateSuggestion(cleanId);
+                    }
+
+                    if (det.score > 0) {
+                        selectScore(cleanId, det.score);
+                    }
+
+                    if (det.attachments && det.attachments.length > 0) {
+                        currentAttachments[cleanId] = det.attachments.map(att => ({
+                            ...att,
+                            status: att.status || 'done',
+                            src: att.src || att.url || ''
+                        }));
+                        renderPreviews(cleanId);
+                    }
+                });
             }
-
-            currentNewImages = {}; // Reset pending images
-            loadedImageUrls = {};  // Reset fetched images
-
-            Object.keys(data.details).forEach(id => {
-                let valId = id.replace('.', '-');
-                let commentBox = document.getElementById(`comment-${valId}`);
-                if(commentBox) commentBox.value = data.details[id].comment || "";
-                
-                let btn = document.getElementById(`btn-${valId}-${data.details[id].score}`);
-                if(btn) btn.click();
-
-                // Linkleri Veritabanından Yükle
-                if(data.details[id].imageUrls && Array.isArray(data.details[id].imageUrls)) {
-                    loadedImageUrls[valId] = data.details[id].imageUrls;
-                }
-                renderPreviews(valId);
-            });
-            
-            // Proje yüklendiğinde tüm akordeon sekmelerini otomatik açalım
-            rubricData.forEach((sec, sIdx) => {
-                const body = document.getElementById(`section-body-${sIdx}`);
-                const chevron = document.getElementById(`chevron-${sIdx}`);
-                if (body && chevron) {
-                    body.style.display = 'block';
-                    chevron.innerText = '▼';
-                }
-            });
+        } else {
+            alert("Veri yüklenemedi: " + res.message);
         }
     })
     .catch(err => {
         document.getElementById('loader').style.display = "none";
-        alert("Error loading project. Check network or Database URL.");
+        alert("Ağ Hatası: Kayıt getirilemedi.");
     });
 }
 
-function saveToSheets() {
-    const projNo = document.getElementById('proj-no').value.trim();
-    if(!projNo) {
-        alert("Project ID is required to save to database!");
-        document.getElementById('proj-no').focus();
-        return;
-    }
-
-    document.getElementById('loader-text').innerText = "Uploading Evidence & Saving to Database...";
-    document.getElementById('loader').style.display = "flex";
-    
-    let payload = {
-        projectNumber: projNo, 
-        projectName: document.getElementById('proj-name').value.trim(),
-        grandTotal: document.getElementById('grand-total').innerText,
-        appStatus: document.getElementById('status-badge').innerText,
-        secTotals: {}, 
-        details: {},
-        overall: {
-            summary: document.getElementById('overall-summary').value,
-            strengths: document.getElementById('overall-strengths').value,
-            weaknesses: document.getElementById('overall-weaknesses').value,
-            budgetCheck: document.getElementById('budget-check').value,
-            checks: {
-                coord: document.getElementById('chk-coord').value,
-                partners: document.getElementById('chk-partners').value,
-                activities: document.getElementById('chk-activities').value,
-                eligNotes: document.getElementById('chk-eligNotes').value,
-                completenessText: document.getElementById('chk-completenessText').value,
-                eur200: document.getElementById('chk-eur200').value,
-                perc95: document.getElementById('chk-perc95').value,
-                fundingNotes: document.getElementById('chk-fundingNotes').value
-            }
-        }
-    };
-
-    rubricData.forEach((sec, sIdx) => {
-        let secScore = 0;
-        sec.items.forEach(item => {
-            let valId = item.id.replace('.','-');
-            let score = parseInt(document.getElementById(`val-${valId}`).value) || 0;
-            secScore += score;
-            
-            payload.details[item.id] = { 
-                score: score, 
-                comment: document.getElementById(`comment-${valId}`).value 
-            };
-            
-            // Eğer yeni URL kanıt eklendiyse pakete dahil et
-            if (currentNewImages[valId] && currentNewImages[valId].length > 0) {
-                payload.details[item.id].newImages = currentNewImages[valId];
-            }
-            
-            // Mevcut veritabanı URL'lerini koru
-            if (loadedImageUrls[valId] && loadedImageUrls[valId].length > 0) {
-                payload.details[item.id].imageUrls = loadedImageUrls[valId];
-            }
-        });
-        payload.secTotals[`sec${sIdx}`] = secScore;
-    });
-
-    fetch(GOOGLE_APP_URL, { 
-        method: "POST", 
-        body: JSON.stringify(payload),
-        headers: { "Content-Type": "text/plain;charset=utf-8" }
-    })
-    .then(r => r.json())
-    .then(res => {
-        document.getElementById('loader').style.display = "none";
-        if(res.result === "success") {
-            alert("Success! Record securely saved to the database.");
-            loadProjectList(); 
-            setTimeout(() => { document.getElementById('project-selector').value = projNo; handleProjectSelection(); }, 500);
-        } else {
-            alert("Database Error: " + res.error);
-        }
-    })
-    .catch(() => {
-        document.getElementById('loader').style.display = "none";
-        alert("Network Error: Could not reach the database.");
-    });
-}
-
-function exportPDFProfessional() {
-    const projNo = document.getElementById('proj-no').value || 'Project';
-    const projName = document.getElementById('proj-name').value || 'Evaluation';
-    const timestamp = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+function exportPDF() {
+    const projNo = document.getElementById('proj-no').value || 'Birim';
+    const projName = document.getElementById('proj-name').value || 'Değerlendirme';
+    const timestamp = new Date().toLocaleDateString('tr-TR').replace(/\./g, '-');
     const grandTotal = document.getElementById('grand-total').innerText;
     const status = document.getElementById('status-badge').innerText;
     
     let reportHTML = `
     <div class="pdf-report">
         <div class="pdf-header">
-            <h1>EVALUATION REPORT</h1>
-            <p>Standardized Assessment & Scoring Document</p>
+            <h1>EĞİTİM VE ÖĞRETİM DEĞERLENDİRME RAPORU</h1>
+            <p>Kurumsal Akreditasyon ve Kalite Güvence Sistemi</p>
         </div>
-        
         <div class="pdf-meta">
             <div class="pdf-meta-item">
-                <div class="pdf-meta-label">Project ID</div>
+                <div class="pdf-meta-label">Birim / Program Kodu</div>
                 <div class="pdf-meta-value">${projNo}</div>
             </div>
             <div class="pdf-meta-item">
-                <div class="pdf-meta-label">Total Score</div>
-                <div class="pdf-meta-value">${grandTotal} / 100</div>
+                <div class="pdf-meta-label">Genel Toplam Puan</div>
+                <div class="pdf-meta-value">${grandTotal} / 400</div>
             </div>
             <div class="pdf-meta-item">
-                <div class="pdf-meta-label">Status</div>
-                <div class="pdf-meta-value" style="color: ${status === 'PASSED' ? '#22c55e' : '#ef4444'}">${status}</div>
+                <div class="pdf-meta-label">Genel Durum</div>
+                <div class="pdf-meta-value" style="color: ${grandTotal >= 200 ? '#16a34a' : '#dc2626'}">${status}</div>
             </div>
         </div>
-        
         <div style="padding: 20px;">
-            <div style="margin-bottom: 20px;">
-                <div style="font-size: 13px; color: #475569;"><strong>Project Name:</strong> ${projName}</div>
-                <div style="font-size: 13px; color: #475569; margin-top: 5px;"><strong>Report Date:</strong> ${new Date().toLocaleDateString('en-GB', {year: 'numeric', month: 'long', day: 'numeric'})}</div>
-            </div>
-    `;
+            <div style="margin-bottom: 25px;">
+                <div style="font-size: 14px; color: #475569;"><strong>Değerlendirilen Program:</strong> ${projName}</div>
+                <div style="font-size: 14px; color: #475569; margin-top: 5px;"><strong>Rapor Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR', {year: 'numeric', month: 'long', day: 'numeric'})}</div>
+            </div>`;
     
     rubricData.forEach((section, sIdx) => {
+        const sumEl = document.getElementById(`sum-${sIdx}`);
         reportHTML += `<div class="pdf-section">
-            <div class="pdf-section-title">${section.title} (${document.getElementById(`sum-${sIdx}`).innerText})</div>`;
+            <div class="pdf-section-title">${section.title} (Ağırlıklı Puan: ${sumEl ? sumEl.innerText : "0 / " + section.maxWeight})</div>`;
         
         section.items.forEach(item => {
-            const cleanId = item.id.replace('.', '-');
-            const score = parseInt(document.getElementById(`val-${cleanId}`).value) || 0;
-            const comment = document.getElementById(`comment-${cleanId}`).value || '(No comment provided)';
+            const cleanId = item.id.replace(/\./g, '-');
+            const valEl = document.getElementById(`val-${cleanId}`);
+            const commEl = document.getElementById(`comment-${cleanId}`);
+            const score = valEl ? (parseInt(valEl.value) || 0) : 0;
+            
+            const commentHTML = commEl ? (commEl.innerHTML || 'Bu kriter için değerlendirme notu girilmemiştir.') : 'Bu kriter için değerlendirme notu girilmemiştir.';
             
             reportHTML += `<div class="pdf-item">
                 <div class="pdf-item-header">
-                    <div class="pdf-item-name"><strong>${item.id}</strong> — ${item.name}</div>
-                    <div class="pdf-item-score">${score} / ${item.max}</div>
+                    <div class="pdf-item-name">${item.id} — ${item.name}</div>
+                    <div class="pdf-item-score">Seviye: ${score} / 5</div>
                 </div>
-                <div class="pdf-item-comment">${escapeHtml(comment)}</div>
+                <div class="pdf-item-comment">${commentHTML}</div>
             </div>`;
         });
-        
         reportHTML += `</div>`;
     });
     
-    reportHTML += `<div class="pdf-section" style="margin-top: 40px;">
-        <div class="pdf-section-title">Summary & Recommendations</div>`;
-    
-    const overallSummary = document.getElementById('overall-summary').value || '(No summary provided)';
-    const overallStrengths = document.getElementById('overall-strengths').value || '(No strengths listed)';
-    const overallWeaknesses = document.getElementById('overall-weaknesses').value || '(No weaknesses listed)';
+    const summary = document.getElementById('overall-summary').innerHTML || '-';
+    const strengths = document.getElementById('overall-strengths').innerHTML || '-';
+    const weaknesses = document.getElementById('overall-weaknesses').innerHTML || '-';
     
     reportHTML += `
-        <div class="pdf-overall">
-            <div class="pdf-overall-title">Evaluation Summary</div>
-            <div class="pdf-overall-text">${escapeHtml(overallSummary)}</div>
+        <div class="pdf-section" style="margin-top: 40px;">
+            <div class="pdf-section-title">Kurul/Komisyon Kararı ve Genel Değerlendirme</div>
+            <div class="pdf-overall">
+                <div class="pdf-overall-title">Genel Değerlendirme Özeti</div>
+                <div class="pdf-overall-text">${summary}</div>
+            </div>
+            <div class="pdf-overall" style="border-color: #86efac; background: #f0fdf4; margin-top: 15px;">
+                <div class="pdf-overall-title" style="color: #166534;">Güçlü Yönler</div>
+                <div class="pdf-overall-text">${strengths}</div>
+            </div>
+            <div class="pdf-overall" style="border-color: #fca5a5; background: #fef2f2; margin-top: 15px;">
+                <div class="pdf-overall-title" style="color: #991b1b;">Gelişmeye Açık Yönler</div>
+                <div class="pdf-overall-text">${weaknesses}</div>
+            </div>
         </div>
-        
-        <div class="pdf-overall" style="border-color: #86efac; background: #f0fdf4; margin-top: 12px;">
-            <div class="pdf-overall-title" style="color: #166534;">Main Strengths</div>
-            <div class="pdf-overall-text" style="color: #145a32;">${escapeHtml(overallStrengths)}</div>
+        <div style="text-align: center; padding: 20px; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; margin-top: 40px;">
+            <div>Bu rapor Akademik Kalite Güvence Sistemi üzerinden otomatik oluşturulmuştur.</div>
         </div>
-        
-        <div class="pdf-overall" style="border-color: #fca5a5; background: #fef2f2; margin-top: 12px;">
-            <div class="pdf-overall-title" style="color: #991b1b;">Main Weaknesses</div>
-            <div class="pdf-overall-text" style="color: #7f1d1d;">${escapeHtml(overallWeaknesses)}</div>
-        </div>
-    </div>
-    
-        <div class="pdf-footer">
-            <div>Document generated on ${timestamp}</div>
-            <div style="margin-top: 8px; opacity: 0.7;">EVE 2026 Assessment System • Evaluation Report</div>
-        </div>
-        </div>
-    </div>`;
+        </div></div>`;
     
     const reportDiv = document.createElement('div');
     reportDiv.innerHTML = reportHTML;
     
-    document.getElementById('loader-text').innerText = "Generating Professional Report...";
+    document.getElementById('loader-text').innerText = "Profesyonel PDF Raporu Hazırlanıyor...";
     document.getElementById('loader').style.display = "flex";
     
-    html2pdf()
-        .set({
-            margin: [0.3, 0.3, 0.3, 0.3],
-            filename: `${projNo}_${projName}_${timestamp}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false
-            },
-            jsPDF: {
-                unit: 'cm',
-                format: 'a4',
-                orientation: 'portrait'
-            },
-            pagebreak: { mode: 'avoid-all' }
-        })
-        .from(reportDiv)
-        .save()
-        .then(() => {
-            document.getElementById('loader').style.display = "none";
-            console.log(`✓ PDF Report: ${projNo}_${projName}_${timestamp}.pdf`);
-        })
-        .catch((err) => {
-            document.getElementById('loader').style.display = "none";
-            console.error('PDF Error:', err);
-            alert('PDF generation failed. Please try again.');
-        });
+    html2pdf().set({
+        margin: [0.5, 0.5, 0.5, 0.5],
+        filename: `Degerlendirme_${projNo}_${timestamp}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: 'avoid-all' },
+        enableLinks: true
+    }).from(reportDiv).save().then(() => {
+        document.getElementById('loader').style.display = "none";
+    });
 }
 
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+function escapeHtml(str) {
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
+
+function compressToBase64(input) {
+    if (input == null || input === '') return '';
+    const inputStr = String(input);
+    const compressed = lzw_encode(inputStr);
+    return btoa(compressed);
+}
+
+function decompressFromBase64(input) {
+    if (input == null || input === '') return '';
+    try {
+        const decoded = atob(input);
+        return lzw_decode(decoded);
+    } catch (e) {
+        return '';
+    }
+}
+
+function lzw_encode(str) {
+    const dict = {};
+    const data = (str || '').split('');
+    let phrase = data[0] || '';
+    const out = [];
+    let code = 256;
+
+    for (let i = 1; i < data.length; i++) {
+        const curr = data[i];
+        const phraseCurr = phrase + curr;
+        if (dict[phraseCurr] != null) {
+            phrase = phraseCurr;
+        } else {
+            out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
+            dict[phraseCurr] = code++;
+            phrase = curr;
+        }
+    }
+
+    if (phrase !== '') {
+        out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
+    }
+
+    let result = '';
+    for (let i = 0; i < out.length; i++) {
+        result += String.fromCharCode((out[i] >> 8) & 0xff, out[i] & 0xff);
+    }
+    return result;
+}
+
+function lzw_decode(str) {
+    const data = [];
+    for (let i = 0; i < str.length; i += 2) {
+        data.push((str.charCodeAt(i) << 8) | str.charCodeAt(i + 1));
+    }
+
+    const dict = [];
+    let curr = String.fromCharCode(data[0]);
+    let old = curr;
+    const out = [curr];
+    let code = 256;
+
+    for (let i = 1; i < data.length; i++) {
+        const currCode = data[i];
+        let phrase;
+        if (currCode < 256) {
+            phrase = String.fromCharCode(currCode);
+        } else {
+            phrase = dict[currCode] ? dict[currCode] : old + old.charAt(0);
+        }
+        out.push(phrase);
+        dict[code++] = old + phrase.charAt(0);
+        old = phrase;
+    }
+
+    return out.join('');
+}
+
+function compressIfUseful(text) {
+    const sanitized = String(text || '');
+    if (!sanitized) return '';
+    const compressed = '#LZ#' + compressToBase64(sanitized);
+    return compressed.length < sanitized.length ? compressed : sanitized;
+}
+
+function decompressIfNeeded(text) {
+    const value = String(text || '');
+    if (value.startsWith('#LZ#')) {
+        return decompressFromBase64(value.slice(4)) || '';
+    }
+    return value;
+}
+
+function sanitizeCommentHTML(html) {
+    const temp = document.createElement('div');
+    temp.innerHTML = html || '';
+
+    const badTags = new Set(['script', 'style', 'img', 'iframe', 'object', 'embed', 'picture', 'svg', 'canvas', 'table', 'tbody', 'thead', 'tfoot', 'tr', 'td', 'th', 'video', 'audio', 'form', 'input', 'button', 'select', 'textarea', 'label', 'option']);
+
+    function sanitizeNode(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            return escapeHtml(node.nodeValue || '')
+                .replace(/[\u200B\u200C\u200D\uFEFF]/g, '')
+                .replace(/\u00A0/g, ' ');
+        }
+
+        if (node.nodeType !== Node.ELEMENT_NODE) {
+            return '';
+        }
+
+        const tag = node.tagName.toLowerCase();
+        if (badTags.has(tag)) {
+            return '';
+        }
+
+        if (tag === 'a') {
+            const href = (node.getAttribute('href') || '').trim();
+            const safeHref = href.replace(/[\u0000-\u001F\u007F]+/g, '').replace(/\s+/g, ' ');
+            if (!/^https?:\/\//i.test(safeHref) && !/^mailto:/i.test(safeHref)) {
+                return sanitizeChildren(node);
+            }
+            const text = sanitizeChildren(node).trim() || escapeHtml(safeHref);
+            return `<a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+        }
+
+        if (tag === 'br') {
+            return '<br>';
+        }
+
+        return sanitizeChildren(node);
+    }
+
+    function sanitizeChildren(parent) {
+        return Array.from(parent.childNodes).map(sanitizeNode).join('');
+    }
+
+    let cleaned = sanitizeChildren(temp)
+        .replace(/\s{2,}/g, ' ')
+        .replace(/((&nbsp;)|\u00A0)/g, ' ')
+        .replace(/(<br>\s*){2,}/g, '<br>')
+        .replace(/^(<br>)+|(<br>)+$/g, '')
+        .trim();
+
+    return cleaned;
+}
+
+function sanitizePlainText(text) {
+    const escaped = escapeHtml(text || '');
+    return escaped.replace(/\r\n|\r|\n/g, '<br>');
+}
+
+document.addEventListener('click', function(e) {
+    const link = e.target.closest('a');
+    if (link && e.target.closest('.comment-area')) {
+        e.preventDefault();
+        window.open(link.href, '_blank');
+    }
+
+    const evidence = e.target.closest('.evidence-box');
+    if (evidence && evidence.id) {
+        activeEvidenceBox = evidence.id.replace(/^evidence-box-/, '');
+    }
+});
+
+document.addEventListener('focusin', function(e) {
+    const evidence = e.target.closest('.evidence-box');
+    if (evidence && evidence.id) {
+        activeEvidenceBox = evidence.id.replace(/^evidence-box-/, '');
+    }
+});
+
+document.addEventListener('paste', function(e) {
+    const commentArea = e.target.closest('.comment-area');
+    const evidenceBox = e.target.closest('.evidence-box');
+    const clipboard = e.clipboardData || window.clipboardData;
+    const items = Array.from((clipboard && clipboard.items) || []);
+    const fileItem = items.find(item => item.type.startsWith('image/') || item.type === 'application/pdf');
+
+    if (fileItem && (evidenceBox || activeEvidenceBox)) {
+        e.preventDefault();
+        const cleanId = evidenceBox ? evidenceBox.id.replace(/^evidence-box-/, '') : activeEvidenceBox;
+        const file = fileItem.getAsFile();
+        if (file) {
+            if (!currentAttachments[cleanId]) currentAttachments[cleanId] = [];
+            const attachment = {
+                type: file.type.startsWith('image/') ? 'image' : 'pdf',
+                title: file.name || (file.type.startsWith('image/') ? 'clipboard-image.png' : 'clipboard-document.pdf'),
+                src: '',
+                url: null,
+                status: IMGBB_API_KEY && !IMGBB_API_KEY.includes('BURAYA') ? 'uploading' : 'pending'
+            };
+            currentAttachments[cleanId].push(attachment);
+            renderPreviews(cleanId);
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                attachment.src = evt.target.result;
+                renderPreviews(cleanId);
+
+                if (attachment.type === 'image') {
+                    if (IMGBB_API_KEY && !IMGBB_API_KEY.includes('BURAYA')) {
+                        uploadImageToImgbb(attachment, cleanId);
+                    }
+                } else {
+                    uploadFileToDrive(attachment, cleanId, file.type);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+        return;
+    }
+
+    if (!commentArea) return;
+
+    e.preventDefault();
+    let pasteHtml = clipboard.getData('text/html');
+    let insertValue = '';
+
+    if (pasteHtml) {
+        insertValue = sanitizeCommentHTML(pasteHtml);
+    }
+
+    if (!insertValue) {
+        const plainText = clipboard.getData('text/plain') || '';
+        insertValue = sanitizePlainText(plainText);
+    }
+
+    if (insertValue) {
+        document.execCommand('insertHTML', false, insertValue);
+    }
+});
 
 window.onload = init;
 </script>
